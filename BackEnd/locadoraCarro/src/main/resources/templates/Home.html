@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <header th:replace="~{header :: hed}"></header>
+    <div id="app">
+
+
+        <div v-for="m in modelos">
+            {{m}}
+            <p v-if="m.carros != 0">
+                <p v-for="c in m.carros">
+                    {{c.id}}
+                </p>
+            </p>
+
+        </div>
+
+
+    </div>
+
+    <script>
+           const { createApp } = Vue;
+           createApp({
+            created() {
+                axios.interceptors.request.use(config => {
+                const token = localStorage.getItem('authToken');
+                if (token) {
+                    config.headers['Authorization'] = `Bearer ${token}`;
+                }
+                return config;
+                }, error => {
+                return Promise.reject(error);
+                });
+            },
+
+            data(){
+                return{
+                   modelos: [],
+                   name : ''
+                }
+            },
+            methods:{
+                getModelos(){
+                    axios.get('http://localhost:8080/modelo').then(response => {
+                        this.modelos = response.data
+                        console.log(this.modelos.slice());
+                        
+                    })
+                    
+                }
+            },
+            mounted(){
+                this.getModelos();
+            }
+           }).mount('#app')
+           
+        axios.interceptors.request.use(config => {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;  // Adiciona o token ao cabeçalho
+        }
+        return config;
+        }, error => {
+        return Promise.reject(error);
+        });
+    </script>
+</body>
+</html>
