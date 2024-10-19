@@ -42,7 +42,9 @@ public class ClienteService {
             .email(cliente.getEmail())
             .id(cliente.getId())
             .name(cliente.getName())
-            .telefone(cliente.getTelefone()).build();
+            .telefone(cliente.getTelefone())
+            .active(cliente.isActive())
+            .build();
     }
 
     @Transactional

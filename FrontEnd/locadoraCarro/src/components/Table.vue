@@ -1,15 +1,12 @@
 <script setup>
-    const array = defineProps(['dados','titulos','details','create','urlApi'])
+    defineProps(['dados','titulos','details','create','urlApi'])
     const aux =0;
+    const emit =defineEmits(['delete']);
 
-    function deleteObj(id, url) {
-        
-        console.log(url+"/"+id);
-        
+    function deleteObj(id) {
+        emit('delete', id)
     }
-    function detailsObj() {
-        
-    }
+    
 </script>
 
 <template>
@@ -27,10 +24,10 @@
                     <span  v-if="titulos.includes(chave)">{{ valor }}</span>
                 </td>
                 <td v-if="details">
-                     <button type="button" class="btn btn-info btn-sm" @click="deleteObj(obj.codigo, urlApi)">Detalhes</button>
+                     <button type="button" class="btn btn-info btn-sm" @click="">Detalhes</button>
                 </td>
                 <td v-if="create">
-                    <button type="button" class="btn btn-danger btn-sm" >Excluir</button>
+                    <button type="button" class="btn btn-danger btn-sm" @click="deleteObj(obj.codigo)">Excluir</button>
                 </td>
             </tr>
         </tbody>

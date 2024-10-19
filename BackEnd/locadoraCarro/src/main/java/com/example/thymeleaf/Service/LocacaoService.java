@@ -82,8 +82,13 @@ public class LocacaoService {
             .nameMarca(locacao.getCarro().getModelo().getMarca().getName())
             .nameCliente(locacao.getCliente().getName())
             .finalizada(locacao.isFinalizada())
+            .valor(locacao.getValor())
             .build();
     }
 
+    public long delete(long id){
+        repositoryLocacao.deleteById(id);
+        return id;
+    }
 
 }
