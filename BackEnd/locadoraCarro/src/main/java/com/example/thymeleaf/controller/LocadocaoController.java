@@ -36,9 +36,9 @@ public class LocadocaoController {
     }
 
     @GetMapping
-    public ResponseEntity getAll() {
+    public ResponseEntity getAll( @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
         try {
-            return new ResponseEntity<>(service.fidAll(),HttpStatus.valueOf(200));
+            return new ResponseEntity<>(service.fidAll(page,size),HttpStatus.valueOf(200));
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.valueOf(500));
         }

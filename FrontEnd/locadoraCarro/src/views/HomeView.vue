@@ -3,8 +3,8 @@ import Card from '@/components/Card.vue';
 import Header from '@/components/Header.vue';
 import Input from '@/components/Input.vue';
 import Modal from '@/components/Modal.vue';
+import Pagination from '@/components/Pagination.vue';
 import Table from '@/components/Table.vue';
-
 import { onMounted, ref } from 'vue';
 
 const urlLocacao = 'http://localhost:8080/locacao';
@@ -13,6 +13,7 @@ const urlCarro = 'http://localhost:8080/carro';
 
 let dadosCliente = ref([]);
 let dadosCarro = ref([]);
+let pageable = ref([])
 let array = ref([]);
 let titulos = ['codigo', 'nameCliente', 'valor', 'nameCarro'];
 let details = true;
@@ -80,12 +81,19 @@ function getLocacoes() {
   let token = localStorage.getItem('authToken');
 
   axios.get(urlLocacao, {
+    params: {
+      page: 0,
+      size: 1
+    },
     headers: {
       'Authorization': 'Bearer ' + token
     }
-  }).then(response => {
-    array.value = response.data;
+  },).then(response => {
+    array.value = response.data.content;
+    pageable = response.data;
     console.log(response.data);
+    console.log(pageable);
+    
   }).catch(erro => {
     console.log(erro.response.data);
   });
@@ -143,7 +151,28 @@ onMounted(() => {
   getCarros();
 });
 
+function changePage (page){
+  let token = localStorage.getItem('authToken');
 
+axios.get(urlLocacao, {
+  params: {
+    page: page,
+    size: 1
+  },
+  headers: {
+    'Authorization': 'Bearer ' + token
+  }
+},).then(response => {
+  array.value = response.data.content;
+  pageable = response.data;
+  console.log(response.data);
+  console.log(pageable);
+  
+}).catch(erro => {
+  console.log(erro.response.data);
+});
+  
+}
 </script>
 
 <template>
@@ -158,6 +187,11 @@ onMounted(() => {
           </template>
           <template v-slot:footer>
             <div class="row">
+              <div class="col text-start">
+                <Pagination :dadosPage="pageable" @changePage="changePage">
+                  
+                </Pagination>
+              </div>
               <div class="col text-end">
                 <button type="button" class="btn btn-primary btn-sm" @click="abrirModal">Adicionar</button>
               </div>
@@ -217,4 +251,8 @@ onMounted(() => {
       <button type="button" class="btn btn-primary" @click="modal">Save changes</button>
     </template>
   </Modal>
+
+  <div>
+    {{ pageable.pageable }}
+  </div>
 </template>

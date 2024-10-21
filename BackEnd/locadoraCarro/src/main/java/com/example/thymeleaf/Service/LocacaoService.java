@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.thymeleaf.dto.LocacaoDTO;
@@ -63,11 +66,13 @@ public class LocacaoService {
     }
 
 
-    public List<LocacaoDTO> fidAll(){
+    public Page<LocacaoDTO> fidAll(int page, int size){
 
-        return repositoryLocacao.findAll().stream().map(locacao ->
-            getLocacao(locacao)    
-        ).collect(Collectors.toList());
+
+        Pageable pageable = PageRequest.of(page,size);
+
+        Page<Locacoes> locacoes = repositoryLocacao.findAll(pageable);
+        return locacoes.map(this::getLocacao);
     }
 
     public LocacaoDTO getLocacao(Locacoes locacao){
