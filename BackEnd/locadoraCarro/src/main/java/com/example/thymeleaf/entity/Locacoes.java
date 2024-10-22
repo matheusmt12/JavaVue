@@ -28,7 +28,7 @@ public class Locacoes {
 
     @Column(name = "data_inicio_locacao",nullable = false)
     private LocalDateTime data_inicio_locacao;
-    @Column(name = "data_fim_locacao_previsto")
+    @Column(name = "data_fim_locacao_previsto", nullable = false)
     private LocalDateTime data_fim_locacao_previsto;
     @Column(name = "data_fim_locacao")
     private LocalDateTime data_fim_locacao;

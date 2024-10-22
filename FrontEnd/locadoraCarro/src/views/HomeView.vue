@@ -15,17 +15,21 @@ let dadosCliente = ref([]);
 let dadosCarro = ref([]);
 let pageable = ref([])
 let array = ref([]);
+let dadosLocacaoModal = ref({})
 let titulos = ['codigo', 'nameCliente', 'valor', 'nameCarro'];
 let details = true;
 let create = true;
+let moda
+
+
 
 let dadosLocacao = {
-  nameClinte: '',
   dataPrevista: '',
   valor: 0
 }
 // Estado de controle da visibilidade do modal
 let visivelModal = ref(false);
+let visivelModalDetails = ref(false)
 
 function modal() {
   let idCliente = document.getElementById('idClienteSelect').value;
@@ -34,7 +38,7 @@ function modal() {
   let token = localStorage.getItem('authToken');
 
   let data = {
-    fim_previsto: dadosLocacao.dataPrevista,
+    data_fim_locacao_previsto: dadosLocacao.dataPrevista,
     valor: dadosLocacao.valor,
     cliente: {
       id: idCliente
@@ -43,20 +47,20 @@ function modal() {
       id: idCarro
     }
   }
-
-
   axios.post(urlLocacao, data, {
     headers: {
       'Authorization': 'Bearer ' + token
     }
   }).then(response => {
     console.log(response.data);
+    getLocacoes();
 
   }).catch(error => {
     console.log(error);
 
   })
 }
+
 
 function deleteObj(id) {
 
@@ -83,7 +87,7 @@ function getLocacoes() {
   axios.get(urlLocacao, {
     params: {
       page: 0,
-      size: 1
+      size: 4
     },
     headers: {
       'Authorization': 'Bearer ' + token
@@ -93,7 +97,7 @@ function getLocacoes() {
     pageable = response.data;
     console.log(response.data);
     console.log(pageable);
-    
+
   }).catch(erro => {
     console.log(erro.response.data);
   });
@@ -142,6 +146,7 @@ function abrirModal() {
 // Função para fechar o modal
 function fecharModal() {
   visivelModal.value = false;
+  visivelModalDetails.value = false;
 }
 
 
@@ -151,27 +156,44 @@ onMounted(() => {
   getCarros();
 });
 
-function changePage (page){
+function detalhesObj(obj) {
+  visivelModalDetails.value = true;
+  dadosLocacaoModal = obj;
+  console.log(dadosLocacaoModal);
+
+}
+
+
+function splitDate(data) {
+
+  if (data == null) return '';
+  let splitData = data.split('T');
+  return splitData[0];
+
+}
+
+function changePage(page) {
   let token = localStorage.getItem('authToken');
 
-axios.get(urlLocacao, {
-  params: {
-    page: page,
-    size: 1
-  },
-  headers: {
-    'Authorization': 'Bearer ' + token
-  }
-},).then(response => {
-  array.value = response.data.content;
-  pageable = response.data;
-  console.log(response.data);
-  console.log(pageable);
-  
-}).catch(erro => {
-  console.log(erro.response.data);
-});
-  
+  axios.get(urlLocacao, {
+    params: {
+      page: page,
+      size: 4
+    },
+    headers: {
+      'Authorization': 'Bearer ' + token
+    }
+  },).then(response => {
+    array.value = response.data.content;
+    pageable = response.data;
+    console.log(response.data);
+    console.log(pageable);
+
+  }).catch(erro => {
+    console.log(erro.response.data);
+  });
+
+
 }
 </script>
 
@@ -183,13 +205,13 @@ axios.get(urlLocacao, {
         <Card titulo="Locações">
           <template v-slot:conteudo>
             <Table :dados="array" :titulos="titulos" :details="details" :create="create" :urlApi="urlLocacao"
-              @delete="deleteObj"></Table>
+              @delete="deleteObj" @detalhes="detalhesObj"></Table>
           </template>
           <template v-slot:footer>
             <div class="row">
               <div class="col text-start">
                 <Pagination :dadosPage="pageable" @changePage="changePage">
-                  
+
                 </Pagination>
               </div>
               <div class="col text-end">
@@ -251,8 +273,78 @@ axios.get(urlLocacao, {
       <button type="button" class="btn btn-primary" @click="modal">Save changes</button>
     </template>
   </Modal>
-
-  <div>
-    {{ pageable.pageable }}
-  </div>
+  <Modal titulo="Detalhes do aluguel" :visivel="visivelModalDetails">
+    <template v-slot:conteudo>
+      <div class="form row">
+        <div class="col">
+          <div class=" mb-3 row">
+            <label for="staticEmail" class="col-sm-3 col-form-label">Cliente:</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext" id="staticEmail"
+                :value="dadosLocacaoModal.nameCliente">
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class=" mb-3 row ">
+            <label for="staticEmail" class="col-sm-3 col-form-label">Carro:</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext" id="staticEmail"
+                :value="dadosLocacaoModal.nameCarro">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form row">
+        <div class="col">
+          <div class=" mb-3 row">
+            <label class="col-form-label">Dato do Aluguel:</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext"
+                :value="splitDate(dadosLocacaoModal.dataLocacao)">
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class=" mb-3 row ">
+            <label for="staticEmail" class="col-form-label">Dia devolucao prevista:</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext"
+                :value="dadosLocacaoModal.dataPrevista ? splitDate(dadosLocacaoModal.dataPrevista) : 'A data nõa foi definida'">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class=" mb-3 row">
+        <label class="col-sm-2 col-form-label">Valor:</label>
+        <div class="col-sm-10">
+          <input type="text" readonly class="form-control-plaintext" :value="dadosLocacaoModal.valor">
+        </div>
+      </div>
+      <div class="form row">
+        <div class="col">
+          <div class=" mb-3 row">
+            <label class="col-form-label">Km Inicial:</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext"
+                :value="dadosLocacaoModal.kmInicial">
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class=" mb-3 row ">
+            <label for="staticEmail" class="col-form-label">Km final:</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext"
+                :value="dadosLocacaoModal.kmFinal">
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template v-slot:rodape>
+      <button type="button" class="btn btn-secondary" @click="fecharModal">Close</button>
+      <button type="button" class="btn btn-primary" @click="">Save changes</button>
+    </template>
+  </Modal>
 </template>
