@@ -24,6 +24,8 @@ public class LocacaoDTO {
     private int kmInicial;
     private int kmFinal;
     private boolean finalizada;
+    private long idCarro;
+    private long idCliente;
 
 
 

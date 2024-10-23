@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.example.thymeleaf.dto.FinalizarAluguelDTO;
 import com.example.thymeleaf.dto.LocacaoDTO;
 import com.example.thymeleaf.entity.Carro;
 import com.example.thymeleaf.entity.Cliente;
@@ -86,12 +87,33 @@ public class LocacaoService {
             .nameCliente(locacao.getCliente().getName())
             .finalizada(locacao.isFinalizada())
             .valor(locacao.getValor())
+            .idCarro(locacao.getCarro().getId())
+            .idCliente(locacao.getCarro().getId())
             .build();
     }
 
     public long delete(long id){
         repositoryLocacao.deleteById(id);
         return id;
+    }
+
+    @Transactional
+    public String finalizarAluguel(FinalizarAluguelDTO finalizar ){
+
+        Carro c = repositoryCarro.findById(finalizar.getIdCarro()).orElseThrow(() -> new NoFindCarroException("O foi possivel encontrar o carro"));
+        
+        c.setDisponivel(true);
+        c.setKm(finalizar.getKmAtual());
+        repositoryCarro.save(c);
+
+        Locacoes l = repositoryLocacao.findById(finalizar.getIdLocacao()).get();
+
+        l.setKm_final(finalizar.getKmAtual());
+        l.setFinalizada(true);
+        l.setData_fim_locacao(LocalDateTime.now());
+        repositoryLocacao.save(l);
+
+        return "Aluguel do veículo foi finalizada";
     }
 
 }

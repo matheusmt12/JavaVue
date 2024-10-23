@@ -19,8 +19,12 @@ let dadosLocacaoModal = ref({})
 let titulos = ['codigo', 'nameCliente', 'valor', 'nameCarro'];
 let details = true;
 let create = true;
-let moda
-
+let finalizar = true
+let dadosFinalizarAluguel = ref({
+  idLocacao: 0,
+  idCarro: 0,
+  kmAtual: 0
+})
 
 
 let dadosLocacao = {
@@ -30,6 +34,7 @@ let dadosLocacao = {
 // Estado de controle da visibilidade do modal
 let visivelModal = ref(false);
 let visivelModalDetails = ref(false)
+let visivelModelFinalizar = ref(false);
 
 function modal() {
   let idCliente = document.getElementById('idClienteSelect').value;
@@ -54,6 +59,7 @@ function modal() {
   }).then(response => {
     console.log(response.data);
     getLocacoes();
+    visivelModal.value = false
 
   }).catch(error => {
     console.log(error);
@@ -75,7 +81,7 @@ function deleteObj(id) {
     console.log(response.data);
     getLocacoes();
   }).catch(erro => {
-    console.log(erro);
+    console.log(erro.response.data);
 
   })
 
@@ -141,12 +147,14 @@ function getMarcas() {
 // Função para abrir o modal
 function abrirModal() {
   visivelModal.value = true;
+
 }
 
 // Função para fechar o modal
 function fecharModal() {
   visivelModal.value = false;
   visivelModalDetails.value = false;
+  visivelModelFinalizar.value = false;
 }
 
 
@@ -159,7 +167,6 @@ onMounted(() => {
 function detalhesObj(obj) {
   visivelModalDetails.value = true;
   dadosLocacaoModal = obj;
-  console.log(dadosLocacaoModal);
 
 }
 
@@ -171,6 +178,7 @@ function splitDate(data) {
   return splitData[0];
 
 }
+
 
 function changePage(page) {
   let token = localStorage.getItem('authToken');
@@ -192,9 +200,41 @@ function changePage(page) {
   }).catch(erro => {
     console.log(erro.response.data);
   });
+}
+
+
+//
+
+
+function finalizarModal(idLocacao, idCarro) {
+  dadosFinalizarAluguel.value.idLocacao = idLocacao;
+  dadosFinalizarAluguel.value.idCarro = idCarro
+  visivelModelFinalizar.value = true;
+}
+
+function finalizarLocacao() {
+  let token = localStorage.getItem('authToken');
+  console.log(dadosFinalizarAluguel.value);
+  
+  axios.put(urlLocacao + '/finalizar', {
+    idLocacao :dadosFinalizarAluguel.value.idLocacao,
+    idCarro : dadosFinalizarAluguel.value.idCarro,
+    kmAtual : dadosFinalizarAluguel.value.kmAtual
+  },{
+    headers: {
+      'Authorization': 'Bearer ' + token
+    }
+  }).then(response => {
+    console.log(response.data);
+    
+    visivelModelFinalizar.value = false;
+    getLocacoes()
+  }).catch(erro => console.log(erro)
+  );
 
 
 }
+
 </script>
 
 <template>
@@ -205,7 +245,7 @@ function changePage(page) {
         <Card titulo="Locações">
           <template v-slot:conteudo>
             <Table :dados="array" :titulos="titulos" :details="details" :create="create" :urlApi="urlLocacao"
-              @delete="deleteObj" @detalhes="detalhesObj"></Table>
+              @delete="deleteObj" @detalhes="detalhesObj" :finalizar="finalizar" @finalizarL="finalizarModal"></Table>
           </template>
           <template v-slot:footer>
             <div class="row">
@@ -278,7 +318,7 @@ function changePage(page) {
       <div class="form row">
         <div class="col">
           <div class=" mb-3 row">
-            <label for="staticEmail" class="col-sm-3 col-form-label">Cliente:</label>
+            <label for="staticEmail" class="col-sm-3 col-form-label "><strong>Cliente:</strong></label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" id="staticEmail"
                 :value="dadosLocacaoModal.nameCliente">
@@ -287,7 +327,7 @@ function changePage(page) {
         </div>
         <div class="col">
           <div class=" mb-3 row ">
-            <label for="staticEmail" class="col-sm-3 col-form-label">Carro:</label>
+            <label for="staticEmail" class="col-sm-3 col-form-label"><strong>Carro:</strong></label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" id="staticEmail"
                 :value="dadosLocacaoModal.nameCarro">
@@ -298,7 +338,7 @@ function changePage(page) {
       <div class="form row">
         <div class="col">
           <div class=" mb-3 row">
-            <label class="col-form-label">Dato do Aluguel:</label>
+            <label class="col-form-label"><strong>Dato do Aluguel:</strong></label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext"
                 :value="splitDate(dadosLocacaoModal.dataLocacao)">
@@ -307,7 +347,7 @@ function changePage(page) {
         </div>
         <div class="col">
           <div class=" mb-3 row ">
-            <label for="staticEmail" class="col-form-label">Dia devolucao prevista:</label>
+            <label for="staticEmail" class="col-form-label"><strong>Dia devolucao prevista:</strong></label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext"
                 :value="dadosLocacaoModal.dataPrevista ? splitDate(dadosLocacaoModal.dataPrevista) : 'A data nõa foi definida'">
@@ -316,7 +356,7 @@ function changePage(page) {
         </div>
       </div>
       <div class=" mb-3 row">
-        <label class="col-sm-2 col-form-label">Valor:</label>
+        <label class="col-sm-2 col-form-label"><strong>Valor:</strong></label>
         <div class="col-sm-10">
           <input type="text" readonly class="form-control-plaintext" :value="dadosLocacaoModal.valor">
         </div>
@@ -324,19 +364,17 @@ function changePage(page) {
       <div class="form row">
         <div class="col">
           <div class=" mb-3 row">
-            <label class="col-form-label">Km Inicial:</label>
+            <label class="col-form-label"><strong>Km Inicial:</strong></label>
             <div class="col-sm-10">
-              <input type="text" readonly class="form-control-plaintext"
-                :value="dadosLocacaoModal.kmInicial">
+              <input type="text" readonly class="form-control-plaintext" :value="dadosLocacaoModal.kmInicial">
             </div>
           </div>
         </div>
         <div class="col">
           <div class=" mb-3 row ">
-            <label for="staticEmail" class="col-form-label">Km final:</label>
+            <label for="staticEmail" class="col-form-label"><strong>Km final:</strong></label>
             <div class="col-sm-10">
-              <input type="text" readonly class="form-control-plaintext"
-                :value="dadosLocacaoModal.kmFinal">
+              <input type="text" readonly class="form-control-plaintext" :value="dadosLocacaoModal.kmFinal">
             </div>
           </div>
         </div>
@@ -344,7 +382,20 @@ function changePage(page) {
     </template>
     <template v-slot:rodape>
       <button type="button" class="btn btn-secondary" @click="fecharModal">Close</button>
-      <button type="button" class="btn btn-primary" @click="">Save changes</button>
     </template>
+  </Modal>
+
+  <Modal titulo="Finalizar Aluguel" :visivel="visivelModelFinalizar">
+    <template v-slot:conteudo>
+      <Input idAtt="idKmFinal" forLabel="kmFinal" idAttAjuda="KmFinal" titulo="Km Final"
+        tituloAjuda="Quilometragem do veículo">
+        <input type="number" v-model="dadosFinalizarAluguel.kmAtual" class="form-control">
+      </Input>
+    </template>
+    <template v-slot:rodape>
+      <button type="button" class="btn btn-secondary" @click="fecharModal">Close</button>
+      <button type="button" class="btn btn-primary" @click="finalizarLocacao">Save changes</button>
+    </template>
+
   </Modal>
 </template>

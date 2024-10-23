@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.thymeleaf.Service.LocacaoService;
+import com.example.thymeleaf.dto.FinalizarAluguelDTO;
 import com.example.thymeleaf.entity.Locacoes;
 import com.example.thymeleaf.repository.IRepositoryLocacao;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 
@@ -49,6 +52,16 @@ public class LocadocaoController {
         try {
             return new ResponseEntity<>(service.delete(id), HttpStatus.OK);
         } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.valueOf(500));
+        }
+    }
+
+    @PutMapping("/finalizar")
+    public ResponseEntity finalizarAluguel(@RequestBody FinalizarAluguelDTO finalizar) {
+        try {
+            return new ResponseEntity<>(service.finalizarAluguel(finalizar),HttpStatus.OK);
+        } catch (Exception e) {
+            // TODO: handle exception
             return new ResponseEntity<>(e.getMessage(),HttpStatus.valueOf(500));
         }
     }
