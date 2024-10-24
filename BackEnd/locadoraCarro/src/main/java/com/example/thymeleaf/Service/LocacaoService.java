@@ -14,6 +14,7 @@ import com.example.thymeleaf.entity.Carro;
 import com.example.thymeleaf.entity.Cliente;
 import com.example.thymeleaf.entity.Locacoes;
 import com.example.thymeleaf.exceptions.CarroIndisponivelException;
+import com.example.thymeleaf.exceptions.KmMenorException;
 import com.example.thymeleaf.exceptions.NoActiveClienteException;
 import com.example.thymeleaf.exceptions.NoFindCarroException;
 import com.example.thymeleaf.exceptions.NoFindClienteException;
@@ -65,12 +66,12 @@ public class LocacaoService {
     }
 
 
-    public Page<LocacaoDTO> fidAll(int page, int size){
+    public Page<LocacaoDTO> fidAll(int page, int size,boolean finalizada){
 
 
         Pageable pageable = PageRequest.of(page,size);
 
-        Page<Locacoes> locacoes = repositoryLocacao.findAll(pageable);
+        Page<Locacoes> locacoes = repositoryLocacao.findByFinalizada(pageable,finalizada);
         return locacoes.map(this::getLocacao);
     }
 
@@ -103,6 +104,9 @@ public class LocacaoService {
         Carro c = repositoryCarro.findById(finalizar.getIdCarro()).orElseThrow(() -> new NoFindCarroException("O foi possivel encontrar o carro"));
         
         c.setDisponivel(true);
+        if (c.getKm() > finalizar.getKmAtual()) {
+            throw new KmMenorException("O km é menor do que o que ja estava no carro");
+        }
         c.setKm(finalizar.getKmAtual());
         repositoryCarro.save(c);
 

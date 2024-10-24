@@ -5,6 +5,8 @@ import Input from '@/components/Input.vue';
 import Modal from '@/components/Modal.vue';
 import Pagination from '@/components/Pagination.vue';
 import Table from '@/components/Table.vue';
+import Alert from '@/components/Alert.vue';
+
 import { onMounted, ref } from 'vue';
 
 const urlLocacao = 'http://localhost:8080/locacao';
@@ -20,12 +22,14 @@ let titulos = ['codigo', 'nameCliente', 'valor', 'nameCarro'];
 let details = true;
 let create = true;
 let finalizar = true
+let statusResponse = ref('');
+let messageResponse = ref('');
 let dadosFinalizarAluguel = ref({
   idLocacao: 0,
   idCarro: 0,
   kmAtual: 0
 })
-
+let queryFinalizar = false;
 
 let dadosLocacao = {
   dataPrevista: '',
@@ -59,7 +63,11 @@ function modal() {
   }).then(response => {
     console.log(response.data);
     getLocacoes();
-    visivelModal.value = false
+
+    messageResponse.value = "Novo Aluguel adicionado";
+    statusResponse.value = 'Adicionado'
+    dadosLocacao.dataPrevista = '';
+    dadosLocacao.valor = '';
 
   }).catch(error => {
     console.log(error);
@@ -89,11 +97,13 @@ function deleteObj(id) {
 
 function getLocacoes() {
   let token = localStorage.getItem('authToken');
+  console.log(queryFinalizar, 'teste finalizar');
 
   axios.get(urlLocacao, {
     params: {
       page: 0,
-      size: 4
+      size: 4,
+      finalizada: queryFinalizar
     },
     headers: {
       'Authorization': 'Bearer ' + token
@@ -101,8 +111,7 @@ function getLocacoes() {
   },).then(response => {
     array.value = response.data.content;
     pageable = response.data;
-    console.log(response.data);
-    console.log(pageable);
+    console.log(array.value);
 
   }).catch(erro => {
     console.log(erro.response.data);
@@ -155,6 +164,11 @@ function fecharModal() {
   visivelModal.value = false;
   visivelModalDetails.value = false;
   visivelModelFinalizar.value = false;
+  console.log(statusResponse, messageResponse);
+
+  statusResponse = '';
+  messageResponse = '';
+  
 }
 
 
@@ -183,10 +197,12 @@ function splitDate(data) {
 function changePage(page) {
   let token = localStorage.getItem('authToken');
 
+
   axios.get(urlLocacao, {
     params: {
       page: page,
-      size: 4
+      size: 4,
+      finalizada: queryFinalizar
     },
     headers: {
       'Authorization': 'Bearer ' + token
@@ -215,23 +231,40 @@ function finalizarModal(idLocacao, idCarro) {
 function finalizarLocacao() {
   let token = localStorage.getItem('authToken');
   console.log(dadosFinalizarAluguel.value);
-  
+
   axios.put(urlLocacao + '/finalizar', {
-    idLocacao :dadosFinalizarAluguel.value.idLocacao,
-    idCarro : dadosFinalizarAluguel.value.idCarro,
-    kmAtual : dadosFinalizarAluguel.value.kmAtual
-  },{
+    idLocacao: dadosFinalizarAluguel.value.idLocacao,
+    idCarro: dadosFinalizarAluguel.value.idCarro,
+    kmAtual: dadosFinalizarAluguel.value.kmAtual
+  }, {
     headers: {
       'Authorization': 'Bearer ' + token
     }
   }).then(response => {
-    console.log(response.data);
-    
-    visivelModelFinalizar.value = false;
+    statusResponse.value = 'Sucesso';
+    messageResponse.value = response.data;
     getLocacoes()
-  }).catch(erro => console.log(erro)
-  );
+    getCarros()
+  }).catch(erro => {
+    console.log(erro.response);
+    
+    statusResponse.value = 'Erro';
+    messageResponse.value = erro.response.data;
+  }
+  
+);
 
+
+}
+
+function getFinalizada(params) {
+  queryFinalizar = params;
+  console.log(queryFinalizar);
+  if (queryFinalizar) {
+    finalizar = false
+  }
+  else { finalizar = true }
+  getLocacoes();
 
 }
 
@@ -242,7 +275,7 @@ function finalizarLocacao() {
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-12">
-        <Card titulo="Locações">
+        <Card titulo="Locações" @queryFinalizada="getFinalizada">
           <template v-slot:conteudo>
             <Table :dados="array" :titulos="titulos" :details="details" :create="create" :urlApi="urlLocacao"
               @delete="deleteObj" @detalhes="detalhesObj" :finalizar="finalizar" @finalizarL="finalizarModal"></Table>
@@ -266,6 +299,10 @@ function finalizarLocacao() {
 
   <!-- Modal -->
   <Modal :titulo="'Alugar Carro'" :visivel="visivelModal">
+    <template v-slot:alert>
+      <Alert titulo="Erro" clsAlert="alert alert-danger" v-if="statusResponse == 'Erro'" :message="messageResponse"></Alert>
+      <Alert titulo="Sucesso" clsAlert="alert alert-success" v-if="statusResponse == 'Adicionado'" :message="messageResponse"></Alert>
+    </template>
     <template v-slot:conteudo>
       <div class=" form row">
         <div class="col">
@@ -386,10 +423,14 @@ function finalizarLocacao() {
   </Modal>
 
   <Modal titulo="Finalizar Aluguel" :visivel="visivelModelFinalizar">
+    <template v-slot:alert>
+      <Alert titulo="Erro" clsAlert="alert alert-danger" v-if="statusResponse == 'Erro'" :message="messageResponse"></Alert>
+      <Alert titulo="Sucesso" clsAlert="alert alert-success" v-if="statusResponse == 'Sucesso'" :message="messageResponse"></Alert>
+    </template>
     <template v-slot:conteudo>
       <Input idAtt="idKmFinal" forLabel="kmFinal" idAttAjuda="KmFinal" titulo="Km Final"
         tituloAjuda="Quilometragem do veículo">
-        <input type="number" v-model="dadosFinalizarAluguel.kmAtual" class="form-control">
+      <input type="number" v-model="dadosFinalizarAluguel.kmAtual" class="form-control">
       </Input>
     </template>
     <template v-slot:rodape>

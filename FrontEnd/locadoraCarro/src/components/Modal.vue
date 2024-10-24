@@ -12,6 +12,7 @@ defineProps(['titulo', 'visivel']);
           <h5 class="modal-title" id="exampleModalLabel">{{ titulo }}</h5>
         </div>
         <div class="modal-body">
+          <slot name="alert"></slot>
           <slot name="conteudo"></slot>
         </div>
         <div class="modal-footer">
