@@ -10,6 +10,9 @@ import com.example.thymeleaf.Service.LocacaoService;
 import com.example.thymeleaf.dto.FinalizarAluguelDTO;
 import com.example.thymeleaf.entity.Locacoes;
 import com.example.thymeleaf.repository.IRepositoryLocacao;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,7 +32,7 @@ public class LocadocaoController {
     private LocacaoService service;
 
     @PostMapping
-    public ResponseEntity post(@RequestBody Locacoes locacao) {
+    public ResponseEntity post( @Valid @RequestBody Locacoes locacao) {
         try {
             return new ResponseEntity<>(service.save(locacao),HttpStatus.valueOf(201));
         } catch (Exception e) {

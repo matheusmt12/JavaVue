@@ -1,6 +1,9 @@
 package com.example.thymeleaf.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.thymeleaf.dto.MarcaDTO;
@@ -45,10 +48,12 @@ public class MarcaService {
 
     }
 
-    public List<MarcaDTO> findAll(){
+    public Page<MarcaDTO> findAll(int page, int size){
 
-        return repositoryMarca.findAll().stream().map(marcas -> 
-            getMarcaDTO(marcas)).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Marca> marca = repositoryMarca.findAll(pageable);
+        return marca.map(this::getMarcaDTO);
 
     }
 

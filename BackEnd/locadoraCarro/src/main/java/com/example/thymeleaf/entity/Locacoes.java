@@ -10,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,11 +27,11 @@ public class Locacoes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
-
     @Column(name = "data_inicio_locacao",nullable = false)
     private LocalDateTime data_inicio_locacao;
+    @NotNull(message = "O campo Data de Entrega é obrigatório ")
     @Column(name = "data_fim_locacao_previsto", nullable = false)
-    private LocalDateTime data_fim_locacao_previsto;
+    private LocalDateTime data_fim_locacao_previsto;    
     @Column(name = "data_fim_locacao")
     private LocalDateTime data_fim_locacao;
     @Column(name = "valor", nullable = false)

@@ -1,5 +1,5 @@
 <script setup>
-const props = defineProps(['titulo'])
+const props = defineProps(['titulo', 'locacaoFinalizada'])
 const emit = defineEmits(['queryFinalizada'])
 let test = false;
 function getFinalizada() {
@@ -19,7 +19,7 @@ function getFinalizada() {
             <div class=" col text-start">
                 {{ titulo }}
             </div>
-            <div class="col form-check form-switch text-start">
+            <div class="col form-check form-switch text-start" v-if="titulo=='Locações'">
                 <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" @click="getFinalizada" v-model="test">
                 <label class="form-check-label" for="flexSwitchCheckDefault">Finalizada</label>
             </div>

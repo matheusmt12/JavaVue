@@ -13,13 +13,13 @@
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav">
                     <li class="nav-item active">
-                        <RouterLink to="/inicio" class="nav-link">Home <span class="sr-only">(current)</span></RouterLink>
+                        <RouterLink to="/inicio" class="nav-link">Inicio</RouterLink>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Features</a>
+                        <RouterLink to="/marca" class="nav-link">Marca</RouterLink>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Pricing</a>
+                        <RouterLink to="/carro" class="nav-link">Carro</RouterLink>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"

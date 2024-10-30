@@ -1,10 +1,10 @@
 <script setup>
-defineProps(['dados', 'titulos', 'details', 'create', 'urlApi', 'finalizar'])
+defineProps(['dados', 'titulos', 'details', 'create', 'urlApi', 'finalizar', 'editar'])
 const aux = 0;
-const emit = defineEmits(['delete', 'detalhes', 'finalizarL']);
+const emit = defineEmits(['delete', 'detalhes', 'finalizarL','editObj']);
 
-function deleteObj(id) {
-    emit('delete', id)
+function deleteObj(obj) {
+    emit('delete',obj)
 }
 
 function detalhes(obj) {
@@ -13,12 +13,10 @@ function detalhes(obj) {
 // Função para dividir strings por letras maiúsculas
 function splitByUppercase(str) {
     if (typeof str === 'string') {
-        console.log(str);
 
         return str.split(/(?=[A-Z])/).join(' '); // Dividindo e juntando com espaço
 
     }
-    console.log(str);
 
     return str; // Se não for string, retorna o valor como está
 }
@@ -27,6 +25,9 @@ function finalizarModal(obj) {
     emit('finalizarL', obj.codigo, obj.idCarro);
 }
 
+function editObj(id) {
+    emit('editObj', id);
+}
 </script>
 
 <template>
@@ -54,7 +55,11 @@ function finalizarModal(obj) {
                     </td>
                     <td v-if="create">
                         <button type="button" class="btn btn-danger btn-sm text-light btn-sm rounded-pill"
-                            @click="deleteObj(obj.codigo)">Excluir</button>
+                            @click="deleteObj(obj)">Excluir</button>
+                    </td>
+                    <td v-if="editar">
+                        <button type="button" class="btn btn-secondary btn-sm text-light btn-sm rounded-pill"
+                            @click="editObj(obj)">Editar</button>
                     </td>
                 </tr>
         </tbody>

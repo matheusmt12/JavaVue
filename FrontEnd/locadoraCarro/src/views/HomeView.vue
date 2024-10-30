@@ -10,18 +10,19 @@ import Alert from '@/components/Alert.vue';
 import { onMounted, ref } from 'vue';
 
 const urlLocacao = 'http://localhost:8080/locacao';
-const urlMarca = 'http://localhost:8080/cliente';
+const urlCliente = 'http://localhost:8080/cliente';
 const urlCarro = 'http://localhost:8080/carro';
 
 let dadosCliente = ref([]);
 let dadosCarro = ref([]);
-let pageable = ref([])
+let pageable = ref([]);
 let array = ref([]);
 let dadosLocacaoModal = ref({})
 let titulos = ['codigo', 'nameCliente', 'valor', 'nameCarro'];
 let details = true;
 let create = true;
 let finalizar = true
+let page = ref(0);
 let statusResponse = ref('');
 let messageResponse = ref('');
 let dadosFinalizarAluguel = ref({
@@ -40,7 +41,9 @@ let visivelModal = ref(false);
 let visivelModalDetails = ref(false)
 let visivelModelFinalizar = ref(false);
 
-function modal() {
+
+//function para criar uma nova locacao
+function salvar() {
   let idCliente = document.getElementById('idClienteSelect').value;
   let idCarro = document.getElementById('idCarroSelect').value;
 
@@ -63,7 +66,7 @@ function modal() {
   }).then(response => {
     console.log(response.data);
     getLocacoes();
-
+    getCarros();
     messageResponse.value = "Novo Aluguel adicionado";
     statusResponse.value = 'Adicionado'
     dadosLocacao.dataPrevista = '';
@@ -75,13 +78,13 @@ function modal() {
   })
 }
 
-
-function deleteObj(id) {
+//function para deletar uma locacao
+function deleteObj(obj) {
 
   let token = localStorage.getItem('authToken')
-  console.log(urlLocacao + '/' + id);
+  console.log(urlLocacao + '/' + obj.codigo);
 
-  axios.delete(urlLocacao + '/' + id, {
+  axios.delete(urlLocacao + '/' + obj.codigo, {
     headers: {
       'Authorization': 'Bearer ' + token
     }
@@ -95,13 +98,14 @@ function deleteObj(id) {
 
 }
 
+//function para buscar todas as locacoes sendo as finalizadas ou as nao finalizadas
 function getLocacoes() {
   let token = localStorage.getItem('authToken');
   console.log(queryFinalizar, 'teste finalizar');
 
   axios.get(urlLocacao, {
     params: {
-      page: 0,
+      page: page.value,
       size: 4,
       finalizada: queryFinalizar
     },
@@ -110,14 +114,18 @@ function getLocacoes() {
     }
   },).then(response => {
     array.value = response.data.content;
-    pageable = response.data;
+    pageable.value = response.data;
     console.log(array.value);
+    console.log(pageable);
+    
+    
 
   }).catch(erro => {
     console.log(erro.response.data);
   });
 }
 
+// buscar todos os carros disponíveis 
 function getCarros() {
   let token = localStorage.getItem('authToken')
 
@@ -132,11 +140,12 @@ function getCarros() {
   })
 }
 
-function getMarcas() {
+//buscar todos os clientes disponíveis 
+function getClientes() {
 
   let token = localStorage.getItem('authToken')
 
-  axios.get(urlMarca, {
+  axios.get(urlCliente, {
     headers: {
       'Authorization': 'Bearer ' + token
     }
@@ -174,7 +183,7 @@ function fecharModal() {
 
 onMounted(() => {
   getLocacoes();
-  getMarcas();
+  getClientes();
   getCarros();
 });
 
@@ -193,29 +202,10 @@ function splitDate(data) {
 
 }
 
-
-function changePage(page) {
-  let token = localStorage.getItem('authToken');
-
-
-  axios.get(urlLocacao, {
-    params: {
-      page: page,
-      size: 4,
-      finalizada: queryFinalizar
-    },
-    headers: {
-      'Authorization': 'Bearer ' + token
-    }
-  },).then(response => {
-    array.value = response.data.content;
-    pageable = response.data;
-    console.log(response.data);
-    console.log(pageable);
-
-  }).catch(erro => {
-    console.log(erro.response.data);
-  });
+//function para o pagelist
+function changePage(number) {
+ page.value = number;
+ getLocacoes();
 }
 
 
@@ -228,6 +218,7 @@ function finalizarModal(idLocacao, idCarro) {
   visivelModelFinalizar.value = true;
 }
 
+//function para finaliazar o aluguel do veículo
 function finalizarLocacao() {
   let token = localStorage.getItem('authToken');
   console.log(dadosFinalizarAluguel.value);
@@ -272,12 +263,11 @@ function getFinalizada(params) {
 
 <template>
   <Header />
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-12">
+  <div class="container"  >
+    <div class="row ">
         <Card titulo="Locações" @queryFinalizada="getFinalizada">
           <template v-slot:conteudo>
-            <Table :dados="array" :titulos="titulos" :details="details" :create="create" :urlApi="urlLocacao"
+            <Table :dados="array" :titulos="titulos" :details="details" :create="create" :urlApi="urlLocacao"  :edit="false"
               @delete="deleteObj" @detalhes="detalhesObj" :finalizar="finalizar" @finalizarL="finalizarModal"></Table>
           </template>
           <template v-slot:footer>
@@ -295,7 +285,6 @@ function getFinalizada(params) {
         </Card>
       </div>
     </div>
-  </div>
 
   <!-- Modal -->
   <Modal :titulo="'Alugar Carro'" :visivel="visivelModal">
@@ -347,7 +336,7 @@ function getFinalizada(params) {
     </template>
     <template v-slot:rodape>
       <button type="button" class="btn btn-secondary" @click="fecharModal">Close</button>
-      <button type="button" class="btn btn-primary" @click="modal">Save changes</button>
+      <button type="button" class="btn btn-primary" @click="salvar">Save changes</button>
     </template>
   </Modal>
   <Modal titulo="Detalhes do aluguel" :visivel="visivelModalDetails">
@@ -440,3 +429,11 @@ function getFinalizada(params) {
 
   </Modal>
 </template>
+
+
+<style>
+.container{
+  padding-top: 20px;
+
+}
+</style>
