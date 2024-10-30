@@ -1,14 +1,14 @@
 <script setup>
-const props = defineProps(['titulo', 'locacaoFinalizada'])
-const emit = defineEmits(['queryFinalizada'])
-let test = false;
-function getFinalizada() {
+const props = defineProps(['titulo','check','valueCheck'])
+const emit = defineEmits(['checkFunc'])
+let test = props.valueCheck;
+function checkFunc() {
     if (!test){
         test = true
     }else{
         test = false
     }
-    emit('queryFinalizada', test)
+    emit('checkFunc', test)
 }
 
 </script>
@@ -19,9 +19,9 @@ function getFinalizada() {
             <div class=" col text-start">
                 {{ titulo }}
             </div>
-            <div class="col form-check form-switch text-start" v-if="titulo=='Locações'">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" @click="getFinalizada" v-model="test">
-                <label class="form-check-label" for="flexSwitchCheckDefault">Finalizada</label>
+            <div class="col form-check form-switch text-start" v-if="titulo=='Locações' || titulo == 'Carro'">
+                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" @click="checkFunc" v-model="test">
+                <label class="form-check-label" for="flexSwitchCheckDefault">{{ check }}</label>
             </div>
         </div>
         <slot name="conteudo"></slot>

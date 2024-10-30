@@ -62,6 +62,7 @@ function salvar() {
   axios.post(urlLocacao, data, {
     headers: {
       'Authorization': 'Bearer ' + token
+
     }
   }).then(response => {
     console.log(response.data);
@@ -265,7 +266,7 @@ function getFinalizada(params) {
   <Header />
   <div class="container"  >
     <div class="row ">
-        <Card titulo="Locações" @queryFinalizada="getFinalizada">
+        <Card titulo="Locações" @checkFunc="getFinalizada" check="Finalizada" :value-check="false">
           <template v-slot:conteudo>
             <Table :dados="array" :titulos="titulos" :details="details" :create="create" :urlApi="urlLocacao"  :edit="false"
               @delete="deleteObj" @detalhes="detalhesObj" :finalizar="finalizar" @finalizarL="finalizarModal"></Table>

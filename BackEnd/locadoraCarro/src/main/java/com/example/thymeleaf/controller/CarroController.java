@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.thymeleaf.Service.CarroService;
@@ -26,11 +27,21 @@ public class CarroController {
     @Autowired
     private CarroService service; 
 
-
     @GetMapping
-    public ResponseEntity get(){
+    public ResponseEntity getAll(){
         try {
-            return new ResponseEntity<>(service.findAll(),HttpStatus.OK);
+            return new ResponseEntity<>(service.getAll(), HttpStatus.valueOf(200));
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.valueOf(500));
+        }
+    }
+
+    @GetMapping("/index")
+    public ResponseEntity get(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "0")
+     int size , @RequestParam(defaultValue = "true") boolean disponivel){
+        try {
+            return new ResponseEntity<>(service.findAll(page , size, disponivel),HttpStatus.OK);
         } catch (Exception e) {
             // TODO: handle exception
             return new ResponseEntity<>(e.getMessage(),HttpStatus.valueOf(500));
