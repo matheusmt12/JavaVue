@@ -14,6 +14,7 @@ import com.example.thymeleaf.dto.CarroDTO;
 import com.example.thymeleaf.entity.Carro;
 import com.example.thymeleaf.entity.Modelo;
 import com.example.thymeleaf.exceptions.NoFindCarroException;
+import com.example.thymeleaf.exceptions.PlacaExistException;
 import com.example.thymeleaf.repository.IRepositoryCarro;
 
 import jakarta.transaction.Transactional;
@@ -30,6 +31,11 @@ public class CarroService {
 
     @Transactional
     public long save(Carro carro) {
+
+        if (repositoryCarro.findByPlaca(carro.getPlaca()) != null) {
+            throw new PlacaExistException("Placa de carro ja cadastrada no sistema");
+        }
+        carro.setDisponivel(true);
         Carro c = repositoryCarro.save(carro);
         return c.getId();
     }

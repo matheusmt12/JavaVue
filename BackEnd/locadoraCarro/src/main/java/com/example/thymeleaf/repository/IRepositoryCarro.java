@@ -10,4 +10,6 @@ import com.example.thymeleaf.entity.Carro;
 @Repository 
 public interface IRepositoryCarro extends JpaRepository<Carro,Long>{
     Page<Carro> findByDisponivel(Pageable pageable, boolean disponivel);
+
+    Carro findByPlaca(String placa);
 }
