@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.thymeleaf.Service.CarroService;
 import com.example.thymeleaf.dto.CarroDTO;
+import com.example.thymeleaf.dto.StatusCarroDTO;
 import com.example.thymeleaf.entity.Carro;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,6 +80,16 @@ public class CarroController {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.valueOf(500));
         }
 
+    }
+
+    @PutMapping("/relatarstatus/{id}")
+    public ResponseEntity relatarStatus( @PathVariable long id ,@RequestBody StatusCarroDTO carro){
+        try {
+            return new ResponseEntity<>(service.relatarStatus(carro , id), HttpStatus.valueOf(200));
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.valueOf(500));
+        }
     }
     
 }

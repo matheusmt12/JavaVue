@@ -19,7 +19,7 @@ function checkFunc() {
             <div class=" col text-start">
                 {{ titulo }}
             </div>
-            <div class="col form-check form-switch text-start" v-if="titulo=='Locações' || titulo == 'Carro'">
+            <div class="col form-check form-switch text-start" v-if="titulo=='Locações' || titulo == 'Carro' || titulo == 'Clientes'">
                 <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" @click="checkFunc" v-model="test">
                 <label class="form-check-label" for="flexSwitchCheckDefault">{{ check }}</label>
             </div>

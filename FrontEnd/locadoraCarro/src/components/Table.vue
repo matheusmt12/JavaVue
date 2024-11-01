@@ -1,7 +1,7 @@
 <script setup>
-defineProps(['dados', 'titulos', 'details', 'create', 'urlApi', 'finalizar', 'editar', 'alugar'])
+defineProps(['dados', 'titulos', 'details', 'create', 'urlApi', 'finalizar', 'editar', 'alugar','edtInfo'])
 const aux = 0;
-const emit = defineEmits(['delete', 'detalhes', 'finalizarL', 'editObj', 'alugarCarro']);
+const emit = defineEmits(['delete', 'detalhes', 'finalizarL', 'editObj', 'alugarCarro','statusCarro']);
 
 function deleteObj(obj) {
     emit('delete', obj)
@@ -35,6 +35,9 @@ function alugarFunc(obj) {
     emit('alugarCarro', obj)
 }
 
+function statusCarro(obj) {
+    emit('statusCarro' , obj)
+}
 
 </script>
 
@@ -58,6 +61,10 @@ function alugarFunc(obj) {
                 <td v-if="alugar">
                     <button type="button" class="btn btn-secondary btn-sm text-light btn-sm rounded-pill"
                         @click="alugarFunc(obj)">Alugar</button>
+                </td>
+                <td v-if="edtInfo">
+                    <button type="button" class="btn btn-info btn-sm text-light btn-sm rounded-pill"
+                        @click="statusCarro(obj)">Status do Carro</button>
                 </td>
                 <td v-if="finalizar">
                     <button type="button" class="btn btn-secondary btn-sm text-light btn-sm rounded-pill"

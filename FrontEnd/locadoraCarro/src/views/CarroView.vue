@@ -7,7 +7,7 @@ import Table from '@/components/Table.vue';
 import Input from '@/components/Input.vue';
 import { onMounted, ref } from 'vue';
 
-let url = 'http://localhost:8080/';
+const url = 'http://localhost:8080/';
 let dadosCarro = ref([]);
 let disponivel = ref(true);
 let dadosAluguelCarro = ref([]);
@@ -18,6 +18,7 @@ let page = ref(0);
 let alugarCheck = ref(true);
 let visivelModalAdicionar = ref(false);
 let visivelModalAluguel = ref(false);
+let visivelStatusModel = ref(false);
 let dataPrevistaEntrega = ref()
 let valorAluguel = ref();
 let dadoCarro = {
@@ -146,8 +147,8 @@ function saveCarro() {
             'Authorization': 'Bearer ' + token
         }
     }).then(response => {
-        console.log(response.data);
 
+        getCarros();
     }).catch(erro => {
         console.log(erro.response.data);
 
@@ -159,7 +160,7 @@ function alugarCar(idCarro) {
 
     let token = localStorage.getItem('authToken');
     let idCliente = document.getElementById('selectCliente').value;
-    console.log(idCarro , idCliente , valorAluguel.value , dataPrevistaEntrega.value);
+    console.log(idCarro, idCliente, valorAluguel.value, dataPrevistaEntrega.value);
 
     axios.post(url + 'locacao', {
         data_fim_locacao_previsto: dataPrevistaEntrega.value,
@@ -175,19 +176,52 @@ function alugarCar(idCarro) {
             'Authorization': 'Bearer ' + token
         }
     }).then(response => {
-        console.log(response.data);
 
+        getCarros();
     }).catch(erro => {
         console.log(erro.response.data);
 
     })
 }
 
-// functios modal
+// functios modal close
 
 function closeModal() {
     visivelModalAdicionar.value = false;
     visivelModalAluguel.value = false;
+    visivelStatusModel.value = false;
+}
+
+//function para relatar status do carro
+
+function statusCarroModal(obj) {
+    visivelStatusModel.value = true;
+    dadosAluguelCarro.value = obj;
+    console.log(dadosAluguelCarro.value);
+
+}
+
+function relatarStatus(idCarro) {
+
+    let status = document.getElementById('statusCarro').value;
+    let disponivel = document.getElementById('carroDisponivelSelect').value
+
+
+    let token = localStorage.getItem('authToken');
+    console.log(idCarro, status, disponivel, token);
+    axios.put(url + 'carro/relatarstatus/' + idCarro, {
+        status: disponivel,
+        menssagemStatus: status
+    }, {
+        headers: { 'Authorization': 'Bearer ' + token }
+    }).then(response => {
+        console.log(response.data);
+        getCarros();
+    }).catch(erro => {
+        console.log(erro.response.data);
+
+    })
+
 }
 </script>
 
@@ -197,8 +231,8 @@ function closeModal() {
         <div class="row">
             <Card titulo="Carro" check="Disponível" @checkFunc="disponivelCarro" :valueCheck="true">
                 <template v-slot:conteudo>
-                    <Table :dados="dadosCarro" :titulos="['id', 'namecarro', 'placa', 'km']" :details="true"
-                        :alugar="alugarCheck" @alugarCarro="alugarCarro"></Table>
+                    <Table :dados="dadosCarro" :titulos="['id', 'namecarro', 'placa', 'km']" :alugar="alugarCheck"
+                        @alugarCarro="alugarCarro" :edtInfo="true" @statusCarro="statusCarroModal"></Table>
                 </template>
                 <template v-slot:footer>
                     <div class="row">
@@ -250,7 +284,7 @@ function closeModal() {
                 <div class="col">
                     <Input idAtt="dataPrevistaLocacao" forLabel="dataPrevista" idAttAjuda="idAjudaTexto"
                         titulo="Data de Entrega Prevista" tituloAjuda="Informe a data de entrega prevista">
-                    <input type="datetime-local" class="form-control" v-model="dataPrevistaEntrega">
+                    <input type="datetime-local" class="form-control" v-model="dataPrevistaEntrega" required>
                     </Input>
                 </div>
                 <div class="col">
@@ -271,7 +305,7 @@ function closeModal() {
                 </div>
                 <div class="col">
                     <div class="col">
-                        <label for="placaCarro" class="form-label">Carro</label>
+                        <label for="placaCarro" class="form-label">Placa</label>
                         <label id="placaCarro" class="form-control" :value="dadosAluguelCarro.placa">
                             {{ dadosAluguelCarro.placa }}</label>
                     </div>
@@ -280,13 +314,54 @@ function closeModal() {
             <div>
                 <Input idAtt="valorAluguel" forLabel="valorAluguel" idAttAjuda="idAjudaTextoAluguel" titulo="Valor"
                     tituloAjuda="Informe o valor do aluguel">
-                <input type="number" class="form-control" v-model="valorAluguel">
+                <input type="number" class="form-control" v-model="valorAluguel" required>
                 </Input>
             </div>
         </template>
         <template v-slot:rodape>
             <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
             <button type="button" class="btn btn-primary" @click="alugarCar(dadosAluguelCarro.id)">Alugar</button>
+        </template>
+    </Modal>
+    <Modal titulo="Relatar Status do carro" :visivel="visivelStatusModel">
+        <template v-slot:conteudo>
+            <div class="row">
+                <div class="col">
+                    <label for="placaCarro" class="form-label">Placa</label>
+                    <label for="placaCarro" class="form-control">{{ dadosAluguelCarro.placa }}</label>
+                </div>
+                <div class="col">
+                    <label for="nameCarro" class="form-label">Carro</label>
+                    <label for="nameCarro" class="form-control">{{ dadosAluguelCarro.modeloCarro.name }}</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="kmCarro" class="form-label">Km</label>
+                    <label for="kmCarro" class="form-control">{{ dadosAluguelCarro.km }}</label>
+                </div>
+                <div class="col">
+                    <Input for-label="disponivelCarro" id-att="carrodisponivel" titulo="Status do Carro"
+                        id-att-ajuda="idajudaCarrodisponivel" titulo-ajuda="Informe o status do Carro">
+                    <select name="selectDisponivel" id="carroDisponivelSelect" class="form-control">
+                        <option value="true" v-if="dadosAluguelCarro.disponivel">Disponível</option>
+                        <option value="false" v-if="dadosAluguelCarro.disponivel">Indisponível</option>
+                        <option value="false" v-if="!dadosAluguelCarro.disponivel">Indisponível</option>
+                        <option value="true" v-if="!dadosAluguelCarro.disponivel">Disponível</option>
+                    </select>
+                    </Input>
+                </div>
+            </div>
+            <Input titulo="Relatar Status do carro" forLabel="statusCarro" idAtt="statusCarro"
+                titulo-ajuda="Informe o que aconteceu com o carro " id-att-ajuda="isAjudadaStatusCarro">
+            <textarea id="statusCarro" class="form-control">{{ dadosAluguelCarro.status }}</textarea>
+            </Input>
+
+        </template>
+        <template v-slot:rodape>
+            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+            <button type="button" class="btn btn-primary" @click="relatarStatus(dadosAluguelCarro.id)">Relatar
+                Status</button>
         </template>
     </Modal>
 </template>

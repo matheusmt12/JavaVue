@@ -15,4 +15,5 @@ public class CarroDTO {
     private boolean disponivel;
     private int km;
     private CarroAndModeloDTO modeloCarro;
+    private String status;
 }

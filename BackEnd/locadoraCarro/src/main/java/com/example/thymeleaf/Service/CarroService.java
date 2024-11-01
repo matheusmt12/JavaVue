@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.thymeleaf.dto.CarroAndModeloDTO;
 import com.example.thymeleaf.dto.CarroDTO;
+import com.example.thymeleaf.dto.StatusCarroDTO;
 import com.example.thymeleaf.entity.Carro;
 import com.example.thymeleaf.entity.Modelo;
 import com.example.thymeleaf.exceptions.NoFindCarroException;
@@ -62,6 +63,7 @@ public class CarroService {
                 .km(carro.getKm())
                 .placa(carro.getPlaca())
                 .modeloCarro(getModeloCarro(carro.getModelo()))
+                .status(carro.getStatus())
                 .build();
     }
 
@@ -91,5 +93,17 @@ public class CarroService {
     public long delete(long id) {
         repositoryCarro.deleteById(id);
         return id;
+    }
+    @Transactional
+    public String relatarStatus(StatusCarroDTO carro , long id){
+
+        Carro c = repositoryCarro.findById(id).orElseThrow(() -> new NoFindCarroException("O carro não esta no sitema"));
+
+        c.setDisponivel(carro.isStatus());
+        c.setStatus(carro.getMenssagemStatus());
+        
+        repositoryCarro.save(c);
+
+        return "Status do carro alterado com sucesso";
     }
 }

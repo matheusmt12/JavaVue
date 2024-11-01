@@ -1,5 +1,11 @@
 <script setup>
+import router from '@/router';
     import { RouterLink, RouterView } from 'vue-router';
+
+    function logout() {
+        localStorage.removeItem('authToken');
+        router.push('/')
+    }
 </script>
 
 <template>
@@ -21,15 +27,18 @@
                     <li class="nav-item">
                         <RouterLink to="/carro" class="nav-link">Carro</RouterLink>
                     </li>
+                    <li class="nav-item">
+                        <RouterLink to="/cliente" class="nav-link">Cliente</RouterLink>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                            Dropdown link
+                            Configuração
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <a class="dropdown-item" href="#">Action</a>
                             <a class="dropdown-item" href="#">Another action</a>
-                            <a class="dropdown-item" href="#">Something else here</a>
+                            <a class="dropdown-item" href="#" @click="logout">Logout</a>
                         </div>
                     </li>
                 </ul>

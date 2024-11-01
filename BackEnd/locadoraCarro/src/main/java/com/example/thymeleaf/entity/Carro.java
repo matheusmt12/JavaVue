@@ -33,7 +33,8 @@ public class Carro {
     private boolean disponivel;
     @Column(name = "km")
     private int km;
-
+    @Column(name = "status")
+    private String status;
     @ManyToOne
     @JoinColumn(name = "modelo_id")
     private Modelo modelo;
