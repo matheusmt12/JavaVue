@@ -268,7 +268,7 @@ function getFinalizada(params) {
     <div class="row ">
         <Card titulo="Locações" @checkFunc="getFinalizada" check="Finalizada" :value-check="false">
           <template v-slot:conteudo>
-            <Table :dados="array" :titulos="titulos" :details="details" :create="create" :urlApi="urlLocacao"  :edit="false"
+            <Table :dados="array" :titulos="titulos" :details="details" :deletar="create" :urlApi="urlLocacao"  :edit="false"
               @delete="deleteObj" @detalhes="detalhesObj" :finalizar="finalizar" @finalizarL="finalizarModal"></Table>
           </template>
           <template v-slot:footer>

@@ -1,12 +1,11 @@
 <script setup>
-defineProps(['dados', 'titulos', 'details', 'create', 'urlApi', 'finalizar', 'editar', 'alugar','edtInfo'])
+defineProps(['dados', 'titulos', 'details', 'deletar', 'urlApi', 'finalizar', 'editar', 'alugar','edtInfo'])
 const aux = 0;
 const emit = defineEmits(['delete', 'detalhes', 'finalizarL', 'editObj', 'alugarCarro','statusCarro']);
 
 function deleteObj(obj) {
     emit('delete', obj)
 }
-
 function detalhes(obj) {
     emit('detalhes', obj)
 }
@@ -74,7 +73,7 @@ function statusCarro(obj) {
                     <button type="button" class="btn btn-info btn-sm text-light btn-sm rounded-pill"
                         @click="detalhes(obj)">Detalhes</button>
                 </td>
-                <td v-if="create">
+                <td v-if="deletar">
                     <button type="button" class="btn btn-danger btn-sm text-light btn-sm rounded-pill"
                         @click="deleteObj(obj)">Excluir</button>
                 </td>

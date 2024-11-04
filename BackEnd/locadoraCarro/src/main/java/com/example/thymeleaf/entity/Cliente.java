@@ -36,6 +36,8 @@ public class Cliente {
     private String email;
     @Column(name = "active", nullable = false)
     private boolean active;
+    @Column(name = "messageStatus")
+    private String messageStatus;
     @OneToMany(mappedBy = "cliente")
     private List<Locacoes> locacoes;
 }

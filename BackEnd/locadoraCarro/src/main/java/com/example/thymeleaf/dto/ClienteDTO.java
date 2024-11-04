@@ -16,4 +16,5 @@ public class ClienteDTO {
     private String telefone;
     private String email;
     private boolean active;
+    private String messageStatus;
 }
