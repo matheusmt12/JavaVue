@@ -22,5 +22,6 @@ public class ModeloDTO {
     private int lugares;
     private boolean air_bag;
     private boolean abs;
+    private String nameMarca;
     private List<Carro> carros;
 }

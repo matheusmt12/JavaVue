@@ -4,6 +4,7 @@ import LoginView from '../views/LoginView.vue';
 import MarcaView from '@/views/MarcaView.vue';
 import CarroView from '@/views/CarroView.vue';
 import ClienteView from '@/views/ClienteView.vue';
+import ModeloView from '@/views/ModeloView.vue';
 
 
 
@@ -25,9 +26,9 @@ const router = createRouter({
     },
     {
       path: '/inicio',
-      name:'home',
+      name: 'home',
       component: HomeView
-      
+
     },
     {
       path: '/marca',
@@ -36,13 +37,18 @@ const router = createRouter({
     },
     {
       path: '/carro',
-      name:'carro',
+      name: 'carro',
       component: CarroView
     },
     {
       path: '/cliente',
-      name:'cliente',
+      name: 'cliente',
       component: ClienteView
+    },
+    {
+      path: '/modelo',
+      name: 'modelo',
+      component : ModeloView
     }
   ]
 })

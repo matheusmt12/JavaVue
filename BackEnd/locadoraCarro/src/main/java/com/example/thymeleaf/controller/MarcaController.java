@@ -79,4 +79,14 @@ public class MarcaController {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.valueOf(500));
         }
     }
+
+    @GetMapping("/index")
+    public ResponseEntity<?> getAllMarcas(){
+        try {
+            return new ResponseEntity<>(marcaService.getAllMarcas(), HttpStatus.valueOf(200));
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(500));
+        }
+    }
 }

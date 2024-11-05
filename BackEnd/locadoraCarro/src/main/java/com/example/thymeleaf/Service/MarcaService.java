@@ -23,12 +23,12 @@ public class MarcaService {
     @Autowired
     private final IRepositoryMarca repositoryMarca;
 
-    public MarcaService(IRepositoryMarca repositoryMarca ){
+    public MarcaService(IRepositoryMarca repositoryMarca) {
         this.repositoryMarca = repositoryMarca;
     }
 
     @Transactional
-    public long save(MarcaDTO marcaDto){
+    public long save(MarcaDTO marcaDto) {
 
         Marca marca = new Marca();
 
@@ -39,16 +39,16 @@ public class MarcaService {
         return marca.getId();
     }
 
-    public MarcaDTO getMarca(long id){
+    public MarcaDTO getMarca(long id) {
 
-       Marca marca = repositoryMarca.findById(id).orElseThrow(() -> new NoFindMarcaException("Marca não encontrada"));
-       return MarcaDTO.builder()
-        .id(marca.getId())
-        .name(marca.getName()).build();
+        Marca marca = repositoryMarca.findById(id).orElseThrow(() -> new NoFindMarcaException("Marca não encontrada"));
+        return MarcaDTO.builder()
+                .id(marca.getId())
+                .name(marca.getName()).build();
 
     }
 
-    public Page<MarcaDTO> findAll(int page, int size){
+    public Page<MarcaDTO> findAll(int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -57,32 +57,30 @@ public class MarcaService {
 
     }
 
-    public MarcaDTO getMarcaDTO(Marca marca){
+    public MarcaDTO getMarcaDTO(Marca marca) {
         return MarcaDTO.builder()
-            .id(marca.getId())
-            .name(marca.getName())
-            .modelos(getModelos(marca.getModelos()))
-            .build();
+                .id(marca.getId())
+                .name(marca.getName())
+                .modelos(getModelos(marca.getModelos()))
+                .build();
     }
 
-    public List<ModeloDTO> getModelos(List<Modelo> modelos){
-        return modelos.stream().map(m ->
-            ModeloDTO.builder()
-            .id(m.getId())
-            .abs(m.isAbs())
-            .lugares(m.getLugares())
-            .name(m.getName())
-            .num_portas(m.getNum_portas()) 
-            .air_bag(m.isAir_bag())
-            .build()
-        ).collect(Collectors.toList());
+    public List<ModeloDTO> getModelos(List<Modelo> modelos) {
+        return modelos.stream().map(m -> ModeloDTO.builder()
+                .id(m.getId())
+                .abs(m.isAbs())
+                .lugares(m.getLugares())
+                .name(m.getName())
+                .num_portas(m.getNum_portas())
+                .air_bag(m.isAir_bag())
+                .build()).collect(Collectors.toList());
     }
 
     @Transactional
-    public MarcaDTO put(long id, MarcaDTO marca){
+    public MarcaDTO put(long id, MarcaDTO marca) {
 
-       Marca m = repositoryMarca.findById(id).orElseThrow(
-            () -> new NoFindMarcaException("Marca nao encontrada"));
+        Marca m = repositoryMarca.findById(id).orElseThrow(
+                () -> new NoFindMarcaException("Marca nao encontrada"));
         m.setId(id);
         m.setName(marca.getName());
         repositoryMarca.save(m);
@@ -91,8 +89,13 @@ public class MarcaService {
     }
 
     @Transactional
-    public long delete(long id){
+    public long delete(long id) {
         repositoryMarca.deleteById(id);
         return id;
+    }
+
+    public List<MarcaDTO> getAllMarcas() {
+
+        return repositoryMarca.findAll().stream().map(marca -> getMarcaDTO(marca)).collect(Collectors.toList());
     }
 }

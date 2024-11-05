@@ -13,7 +13,7 @@ function detalhes(obj) {
 function splitByUppercase(str) {
     if (typeof str === 'string') {
 
-        return str.split(/(?=[A-Z])/).join(' '); // Dividindo e juntando com espaço
+        return str.split(/(?=[A-Z])|_/).join(' '); // Dividindo e juntando com espaço
 
     }
 

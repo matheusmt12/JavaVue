@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.thymeleaf.dto.ModeloDTO;
@@ -32,6 +35,7 @@ public class ModeloService {
             getModelo(modelo)).collect(Collectors.toList());
     }
 
+
     public ModeloDTO getModelo(Modelo modelo){
 
         return ModeloDTO.builder()
@@ -41,6 +45,7 @@ public class ModeloService {
             .lugares(modelo.getLugares())
             .name(modelo.getName())
             .num_portas(modelo.getNum_portas())
+            .nameMarca(modelo.getMarca().getName())
             .carros(getCarros(modelo.getCarros()))
             .build();
 
@@ -79,4 +84,14 @@ public class ModeloService {
         repositoryModelo.deleteById(id);
         return id;
     }
+
+    public Page<ModeloDTO> getAllModelos(int page , int size){
+
+        Pageable pageable = PageRequest.of(page, size);
+ 
+        Page<Modelo> modelo = repositoryModelo.findAll(pageable);
+ 
+        return modelo.map(this::getModelo);
+     }
+
 }

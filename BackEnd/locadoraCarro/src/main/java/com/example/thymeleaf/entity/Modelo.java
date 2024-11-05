@@ -38,7 +38,7 @@ public class Modelo {
     private boolean abs;
 
     @ManyToOne
-    @JoinColumn(name = "marca_id")
+    @JoinColumn(name = "marca_id",nullable = false)
     private Marca marca;
 
     @OneToMany(mappedBy = "modelo")

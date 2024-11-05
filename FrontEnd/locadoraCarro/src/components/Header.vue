@@ -21,6 +21,9 @@ import router from '@/router';
                     <li class="nav-item active">
                         <RouterLink to="/inicio" class="nav-link">Inicio</RouterLink>
                     </li>
+                    <li class="nav-item active">
+                        <RouterLink to="/modelo" class="nav-link">Modelo </RouterLink>
+                    </li>
                     <li class="nav-item">
                         <RouterLink to="/marca" class="nav-link">Marca</RouterLink>
                     </li>

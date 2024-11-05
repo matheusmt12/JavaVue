@@ -55,7 +55,8 @@ function salvar() {
         getMarcas();
         nameMarca = '';
     }).catch(erro => {
-        console.log(erro.response.data);
+        dadosAlert.value.message = erro.response.data;
+        dadosAlert.value.response = 'Erro'
 
     })
 }
@@ -94,11 +95,16 @@ function saveEdit() {
         console.log(response.data);
         idMarca.value = 0;
         nameMarca = '';
+        dadosAlert.value.message = response.data;
+        dadosAlert.value.response = "Sucesso";
+         document.getElementById('btnSavechange').disabled = true;
+
         getMarcas();
 
     }).catch(erro => {
-        console.log(erro.response.date);
 
+        dadosAlert.value.message = erro.response.data;
+        dadosAlert.value.response = 'Erro'
     })
 }
 
@@ -137,7 +143,10 @@ function changePage(number) {
     <!-- Modal para adicionar Marca -->
     <Modal titulo="Adicionar marca" :visivel="visivelModalAdd">
         <template v-slot:alert>
-            <Alert clsAlert="alert alert-success"  titulo="Sucesso" :message="dadosAlert.message" v-if="dadosAlert.response == 'Sucesso'"></Alert>
+            <Alert clsAlert="alert alert-success" titulo="Sucesso" :message="dadosAlert.message"
+                v-if="dadosAlert.response == 'Sucesso'"></Alert>
+            <Alert clsAlert="alert alert-danger" titulo="Erro" :message="dadosAlert.message"
+                v-if="dadosAlert.response == 'Erro'"></Alert>
         </template>
         <template v-slot:conteudo>
             <div>
@@ -155,6 +164,12 @@ function changePage(number) {
 
     <!-- Modal para editar a marca -->
     <Modal titulo="Editar a Marca" :visivel="visivelModalEdit">
+        <template v-slot:alert>
+            <Alert clsAlert="alert alert-success" titulo="Sucesso" :message="dadosAlert.message"
+                v-if="dadosAlert.response == 'Sucesso'"></Alert>
+            <Alert clsAlert="alert alert-danger" titulo="Erro" :message="dadosAlert.message"
+                v-if="dadosAlert.response == 'Erro'"></Alert>
+        </template>
         <template v-slot:conteudo>
             <div>
                 <Input id-att="nameMarca" titulo="Nome" for-label="nameMarca" id-att-ajuda="ajudaMarca"
@@ -165,7 +180,7 @@ function changePage(number) {
         </template>
         <template v-slot:rodape>
             <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
-            <button type="button" class="btn btn-primary" @click="saveEdit">Save changes</button>
+            <button type="button" id="btnSavechange" class="btn btn-primary" @click="saveEdit">Save changes</button>
         </template>
     </Modal>
 </template>

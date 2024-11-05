@@ -5,6 +5,7 @@ import Modal from '@/components/Modal.vue';
 import Pagination from '@/components/Pagination.vue';
 import Table from '@/components/Table.vue';
 import Input from '@/components/Input.vue';
+import Alert from '@/components/Alert.vue';
 import { onMounted, ref } from 'vue';
 
 const url = 'http://localhost:8080/';
@@ -26,6 +27,10 @@ let dadoCarro = {
     km: '',
 }
 
+let messages = ref({
+    data: '',
+    status: ''
+})
 onMounted(() => {
     getCarros();
     getModelosCarro();
@@ -40,7 +45,6 @@ function getModelosCarro() {
         }
     }).then(response => {
         modelosCarros.value = response.data;
-        console.log(response);
 
     }).catch(erro => {
         console.log(erro);
@@ -127,9 +131,9 @@ function modalAdicionar() {
     visivelModalAdicionar.value = true;
 }
 
-//function para modal de alugar
 
 
+// finction para adicionar carro
 function saveCarro() {
     let token = localStorage.getItem('authToken');
     let idModelo = document.getElementById('idModeloSelect').value
@@ -140,22 +144,22 @@ function saveCarro() {
             id: idModelo
         }
     }
-    console.log(data);
-
     axios.post(url + 'carro', data, {
         headers: {
             'Authorization': 'Bearer ' + token
         }
     }).then(response => {
-
+        messages.value.data = response.data;
+        messages.value.status = 'Sucesso';
         getCarros();
     }).catch(erro => {
-        console.log(erro.response.data);
-
+        messages.value.data = erro.response.data;
+        messages.value.status = 'Erro';
     })
 }
 
 
+//function para modal de alugar
 function alugarCar(idCarro) {
 
     let token = localStorage.getItem('authToken');
@@ -176,11 +180,12 @@ function alugarCar(idCarro) {
             'Authorization': 'Bearer ' + token
         }
     }).then(response => {
-
+        messages.value.data = response.data
+        messages.value.status = 'Sucesso'
         getCarros();
     }).catch(erro => {
-        console.log(erro.response.data);
-
+        messages.value.data = erro.response.data;
+        messages.value.status = 'Erro'
     })
 }
 
@@ -250,6 +255,10 @@ function relatarStatus(idCarro) {
     </div>
 
     <Modal titulo="Adicionar carro" :visivel="visivelModalAdicionar">
+       <template v-slot:alert>
+        <Alert cls-alert="alert alert-success" :message="messages.data" titulo="Sucesso" v-if="messages.status == 'Sucesso'"></Alert>
+        <Alert cls-alert="alert alert-danger" :message="messages.data" titulo="Erro" v-if="messages.status == 'Erro'"></Alert>
+       </template> 
         <template v-slot:conteudo>
             <div>
                 <div class="row">
