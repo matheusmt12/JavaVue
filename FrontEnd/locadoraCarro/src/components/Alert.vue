@@ -5,6 +5,6 @@
 
 <template>
     <div :class="clsAlert" role="alert">
-        <Strong>{{ titulo }}:</Strong>{{ message }}
+        <Strong>{{ titulo }}: </Strong>{{ message }}
     </div>
 </template>

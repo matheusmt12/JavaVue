@@ -1,7 +1,7 @@
 <script setup>
-defineProps(['dados', 'titulos', 'details', 'deletar', 'urlApi', 'finalizar', 'editar', 'alugar','edtInfo'])
+defineProps(['dados', 'titulos', 'details', 'deletar', 'urlApi', 'finalizar', 'editar', 'alugar','edtInfo','ativar'])
 const aux = 0;
-const emit = defineEmits(['delete', 'detalhes', 'finalizarL', 'editObj', 'alugarCarro','statusCarro']);
+const emit = defineEmits(['delete', 'detalhes', 'finalizarL', 'editObj', 'alugarCarro','statusCarro','ativarCliente']);
 
 function deleteObj(obj) {
     emit('delete', obj)
@@ -38,6 +38,9 @@ function statusCarro(obj) {
     emit('statusCarro' , obj)
 }
 
+function ativarCliente(obj) {
+    emit('ativarCliente', obj);
+}
 </script>
 
 <template>
@@ -56,6 +59,10 @@ function statusCarro(obj) {
                 <td v-for="chave in titulos" :key="chave">
                     <span>{{ obj[chave] }}</span>
                     <span v-if="chave == 'namecarro'">{{ obj.modeloCarro.name }}</span>
+                </td>
+                <td v-if="ativar">
+                    <button type="button" class="btn btn-success btn-sm text-light btn-sm rounded-pill"
+                        @click="ativarCliente(obj)">Reintegrar Cliente</button>
                 </td>
                 <td v-if="alugar">
                     <button type="button" class="btn btn-secondary btn-sm text-light btn-sm rounded-pill"

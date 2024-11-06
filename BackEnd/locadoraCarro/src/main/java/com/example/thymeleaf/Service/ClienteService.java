@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.thymeleaf.dto.ClienteDTO;
+import com.example.thymeleaf.dto.MudarStatusClienteDTO;
 import com.example.thymeleaf.entity.Cliente;
 import com.example.thymeleaf.exceptions.NoFindClienteException;
 import com.example.thymeleaf.repository.IRepositoryCliente;
@@ -82,15 +83,18 @@ public class ClienteService {
     }
 
     @Transactional
-    public String removeCliente(long id, String messageStatus){
+    public String mudarStatus(long id, MudarStatusClienteDTO clienteStatus){
 
         Cliente cliente = repositoryCliente.findById(id).orElseThrow(() -> new NoFindClienteException("O cliente não foi encontrado"));
 
-        cliente.setActive(false);
-        cliente.setMessageStatus(messageStatus);
+        cliente.setActive(clienteStatus.isStatus());
+        cliente.setMessageStatus(clienteStatus.getMessage());
 
         repositoryCliente.save(cliente);
-        return "O cliente agora esta inativo";
+        if (clienteStatus.isStatus()) {
+            return "O cliente foi Reintegrado";
+        }
+        return "O cliente foi removido ";
     }
 
 }

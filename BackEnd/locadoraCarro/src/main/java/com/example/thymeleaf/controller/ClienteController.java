@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.thymeleaf.Service.ClienteService;
 import com.example.thymeleaf.dto.ClienteDTO;
+import com.example.thymeleaf.dto.MudarStatusClienteDTO;
 import com.example.thymeleaf.entity.Cliente;
 
 
@@ -29,7 +30,8 @@ public class ClienteController {
     @PostMapping
     public ResponseEntity<?> post(@RequestBody Cliente cliente) {
         try {
-            return new ResponseEntity<>(service.save(cliente), HttpStatus.CREATED);
+            service.save(cliente);
+            return new ResponseEntity<>("Cliente cadastrado com sucesso", HttpStatus.CREATED);
         } catch (Exception e) {
             // TODO: handle exception
             return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(500));
@@ -49,7 +51,8 @@ public class ClienteController {
     @PutMapping("{id}")
     public ResponseEntity<?> put(@PathVariable long id, @RequestBody ClienteDTO cliente) {
         try {
-            return new ResponseEntity<>(service.edit(id, cliente), HttpStatus.OK);
+            service.edit(id, cliente);
+            return new ResponseEntity<>("Conclusão nas alteraçoes do cliente", HttpStatus.OK);
         } catch (Exception e) {
             // TODO: handle exception
             return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(500));
@@ -76,10 +79,10 @@ public class ClienteController {
         }
     }
 
-    @PutMapping("/remove/{id}")
-    public ResponseEntity<?> removeClinete( @PathVariable long id,@RequestBody String message){
+    @PutMapping("/mudarstatus/{id}")
+    public ResponseEntity<?> removeClinete( @PathVariable long id,@RequestBody MudarStatusClienteDTO cliente){
         try {
-            return new ResponseEntity<>(service.removeCliente(id, message),HttpStatus.valueOf(200));
+            return new ResponseEntity<>(service.mudarStatus(id, cliente),HttpStatus.valueOf(200));
         } catch (Exception e) {
             // TODO: handle exception
             return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(500));
