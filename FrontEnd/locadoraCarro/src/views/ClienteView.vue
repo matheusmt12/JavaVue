@@ -25,6 +25,10 @@ let dadosCliente = {
     nome: '',
     cpf: ''
 };
+let pesquisa = {
+    nomeCliente: '',
+    cpf:''
+}
 let pageable = ref([]);
 let page = ref(0);
 let active = ref(true);
@@ -50,7 +54,9 @@ function getClientes() {
         params: {
             size: 5,
             page: page.value,
-            active: active.value
+            active: active.value,
+            nome: pesquisa.nomeCliente,
+            cpf: pesquisa.cpf.replace(/\D/g,'')
         },
         headers: {
             'Authorization': 'Bearer ' + token
@@ -58,6 +64,7 @@ function getClientes() {
     }).then(response => {
         console.log(response.data);
         dadosClientes.value = response.data.content;
+        
         pageable.value = response.data;
 
     }).catch(erro => {
@@ -75,10 +82,8 @@ function getLocacoes() {
             'Authorization': 'Bearer ' + token
         }
     }).then(response => {
-        console.log(response.data.content);
         dadosLocacao.value = response.data.content;
     }).catch(erro => {
-        console.log(erro.response.data);
 
     })
 }
@@ -134,7 +139,6 @@ function reintegrarCliente(params) {
     visivelReintegrar.value = true;
     dadoCliente.value = params;
     statusCliente.value = true;
-    console.log(params);
 
 }
 
@@ -173,8 +177,8 @@ function editCliente(message, id) {
 
     // emailIdCliente  nameClienteEdit telefoneClienteEdit cpfClienteEdit
     let name = document.getElementById('nameClienteEdit').value;
-    let email =  document.getElementById('emailIdCliente').value;
-    let cpf =  document.getElementById('cpfClienteEdit').value;
+    let email = document.getElementById('emailIdCliente').value;
+    let cpf = document.getElementById('cpfClienteEdit').value;
     let telefone = document.getElementById('telefoneClienteEdit').value;
     let messageStatus = message;
     axios.put(url + 'cliente/' + id, {
@@ -183,20 +187,20 @@ function editCliente(message, id) {
         email: email,
         telefone: telefone.replace(/\D/g, ''),
         messageStatus: messageStatus
-    },{
+    }, {
         headers: {
-            'Authorization' : 'Bearer ' + token
+            'Authorization': 'Bearer ' + token
         }
     }).then(response => {
         messages.value.data = response.data;
         messages.value.status = 'Sucesso';
         getClientes();
-        
+
     }).catch(erro => {
         messages.value.data = erro.response.data;
         messages.value.status = 'Sucesso';
         getClientes();
-        
+
     })
 }
 
@@ -207,7 +211,6 @@ function statusClienteFunc(params) {
     let pendente = document.getElementById('simPendente').value;
     let menssagem = document.getElementById('messagemCliente').value;
     if (pendente === 'Sim') {
-        console.log('esta aqui');
         document.getElementById('excluirBtn').disabled = true;
         return alert('Resolver pendencia para remover cliente');
     }
@@ -235,224 +238,267 @@ function statusClienteFunc(params) {
     })
 }
 
+//function para pesquisar cliente
+
+function pesquisar() {
+    
+    getClientes();
+}
 </script>
 
 <template>
     <Header></Header>
-    <Card titulo="Clientes" check="Ativo" :value-check="true" @check-func="checkFunck">
-        <template v-slot:conteudo>
-            <Table :titulos="['id', 'name', 'cpf', 'telefone']" :dados="dadosClientes" :editar="true"
-                @editObj="modalEdit" :deletar="deletarCheck" @delete="modalExcluir" :ativar="ativarClienteBoolean"
-                @ativarCliente="reintegrarCliente"> </Table>
-        </template>
-        <template v-slot:footer>
-            <div class="row">
-                <div class="col text-start">
-                    <Pagination :dados-page="pageable" @change-page="changePage"></Pagination>
-                </div>
-                <div class="col text-end">
-                    <button type="button" class="btn btn-primary btn-sm" @click="modalAdicionar">Adicionar</button>
-                </div>
-            </div>
-        </template>
-    </Card>
-    <Modal titulo="Adicionar Cliente" :visivel="visivelModalAdicionar">
-        <template v-slot:alert>
-            <Alert v-if="messages.status == 'Sucesso'" cls-alert="alert alert-success" :message="messages.data"
-                titulo="Sucesso"></Alert>
-            <Alert v-if="messages.status == 'Erro'" cls-alert="alert alert-success" :message="messages.data"
-                titulo="Erro"></Alert>
-        </template>
-        <template v-slot:conteudo>
-            <Input for-label="emailCliente" id-att="clientEmail" id-att-ajuda="idClienteAjuda" titulo="Email"
-                titulo-ajuda="Informe o Email">
-            <input type="email" class="form-control" v-model="dadosCliente.email">
-            </Input>
-            <div class="row">
-                <div class="col">
-                    <Input for-label="nameCliente" id-att="idNameCliente" id-att-ajuda="idNameCliente" titulo="Nome"
-                        titulo-ajuda="Informe o nome do Cliente">
-                    <input type="text" name="nameCliente" id="nameCliente" class="form-control"
-                        v-model="dadosCliente.nome">
-                    </Input>
-                </div>
-                <div class="col">
-                    <Input for-label="telefoneCliente" id-att="telefoneid" id-att-ajuda="ajudatelefoneId"
-                        titulo="Telefone" titulo-ajuda="Informe o telefone do cliente">
-                    <input type="text" v-mask="'(##) #####-####'" class="form-control"
-                        v-model="dadosCliente.telefone" />
-                    </Input>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <Input for-label="cpfCliente" id-att="cpfCliente" id-att-ajuda="ajudaCpfCliente" titulo="CPF"
-                        titulo-ajuda="Informe o cpf do cliente">
-                    <input type="text" v-mask="'###.###.###-##'" class="form-control" id="cpfCliente"
-                        v-model="dadosCliente.cpf" />
-                    </Input>
-                </div>
-            </div>
-        </template>
-        <template v-slot:rodape>
-            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
-            <button type="button" class="btn btn-primary" @click="saveCliente">Save changes</button>
-        </template>
-    </Modal>
-    <!-- Modal para editar o cliente -->
-    <Modal titulo="Editar Cliente" :visivel="visivelModalEditar">
-        <template v-slot:alert>
-            <Alert v-if="messages.status == 'Sucesso'" cls-alert="alert alert-success" :message="messages.data"
-                titulo="Sucesso"></Alert>
-            <Alert v-if="messages.status == 'Erro'" cls-alert="alert alert-success" :message="messages.data"
-                titulo="Erro"></Alert>
-        </template>
-        <template v-slot:conteudo>
-            <Input for-label="emailClienteEdit" id-att="clientEmailEdit" id-att-ajuda="idClienteAjuda" titulo="Email"
-                titulo-ajuda="Informe o Email">
-            <input type="email" class="form-control" id="emailIdCliente" :value="dadoCliente.email">
-            </Input>
-            <div class="row">
-                <div class="col">
-                    <Input for-label="nameCliente" id-att="idNameClienteEdit" id-att-ajuda="idNameCliente" titulo="Nome"
-                        titulo-ajuda="Informe o nome do Cliente">
-                    <input type="text" name="nameCliente" id="nameClienteEdit" class="form-control"
-                       :value="dadoCliente.name">
-                    </Input>
-                </div>
-                <div class="col">
-                    <Input for-label="telefoneCliente" id-att="telefoneidEdit" id-att-ajuda="ajudatelefoneId"
-                        titulo="Telefone" titulo-ajuda="Informe o telefone do cliente">
-                    <input type="text" v-mask="'(##) #####-####'" class="form-control"
-                        :value="dadoCliente.telefone"  id="telefoneClienteEdit" />
-                    </Input>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <Input for-label="cpfCliente" id-att="cpfClienteEdit" id-att-ajuda="ajudaCpfCliente" titulo="CPF"
-                        titulo-ajuda="Informe o cpf do cliente">
-                    <input type="text" v-mask="'###.###.###-##'" class="form-control" id="cpfClienteEdit"
-                        :value="dadoCliente.cpf" />
-                    </Input>
-                </div>
-            </div>
-        </template>
-        <template v-slot:rodape>
-            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
-            <button type="button" class="btn btn-primary" @click="editCliente(dadoCliente.messageStatus, dadoCliente.id)">Save changes</button>
-        </template>
-    </Modal>
-    <!-- Modal para remover o cliente (deixar inativo)-->
-    <Modal titulo="Remover Cliente" :visivel="visivelModalRemover">
-        <template v-slot:alert>
-            <Alert v-if="messages.status == 'Sucesso'" cls-alert="alert alert-success" :message="messages.data"
-                titulo="Sucesso"></Alert>
-            <Alert v-if="messages.status == 'Erro'" cls-alert="alert alert-success" :message="messages.data"
-                titulo="Erro"></Alert>
-        </template>
-        <template v-slot:conteudo>
-            <div class="row">
-                <div class="col">
-                    <label for="nameCliente" class="form-label"> Nome </label>
-                    <input class="form-control" :value="dadoCliente.name" disabled />
-                </div>
-                <div class="col">
-                    <label for="cpfCliente" class="form-label"> CPF </label>
-                    <input class="form-control" v-mask="'###.###.###-##'" :value="dadoCliente.cpf" disabled />
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="emailCliente" class="form-label">Email</label>
-                        <input class="form-control" :value="dadoCliente.email" disabled />
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="telefoneCliente" class="form-label">Telefone</label>
-                        <input class="form-control" :value="dadoCliente.telefone" v-mask="'(##) #####-####'" disabled />
-                    </div>
-                    <div class="col">
-                        <label for="estaPendente" class="form-label">Tem carro alugado</label>
-                        <input id="simPendente"
-                            v-if="dadosLocacao.filter(i => i.idCliente === dadoCliente.id && i.finalizada === false).length > 0"
-                            class="form-control" :value="'Sim'" disabled />
-                        <input id="simPendente" v-else class="form-control" :value="'Não'" disabled>
-                    </div>
+    <div class="row justify-content-center">
+        <div class="pesquisa col-md-8">
+            <Card titulo="Pesquisar Cliente">
+                <template v-slot:conteudo>
                     <div class="row">
                         <div class="col">
-                            <Input for-label="textStatus" id-att="textoStatus" id-att-ajuda="idAjudaStatus"
-                                :titulo="'Menssagem sobre o Cliente: ' + dadoCliente.name"
-                                titulo-ajuda="Informe o motivo desta ação">
-                            <textarea name="statusMessagem" id="messagemCliente" class="form-control"
-                                :value="dadoCliente.messageStatus"></textarea>
+                            <Input for-label="pesquisaClietne" id-att="pesquisaId" id-att-ajuda="ajudaPesquisaid"
+                                titulo="CPF do Cliente" titulo-ajuda="Informe o CPF do cliente">
+                            <input type="text" v-mask="'###.###.###-##'" class="form-control" v-model="pesquisa.cpf">
+                            </Input>
+                        </div>
+                        <div class="col">
+                            <Input for-label="pesquisaClietneNome" id-att="pesquisaIdNome" id-att-ajuda="ajudaPesquisaidNome"
+                                titulo="Nome do Cliente" titulo-ajuda="Informe o Nome do cliente">
+                            <input type="text" class="form-control" v-model="pesquisa.nomeCliente">
                             </Input>
                         </div>
                     </div>
-                </div>
-            </div>
-        </template>
-        <template v-slot:rodape>
-            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
-            <button type="button" class="btn btn-primary" id="excluirBtn"
-                @click="statusClienteFunc(dadoCliente.id)">Save
-                changes</button>
-        </template>
-    </Modal>
-    <!-- Reintegrar cliente  -->
-    <Modal titulo="Reintegrar Cliente" :visivel="visivelReintegrar">
-        <template v-slot:alert>
-            <Alert v-if="messages.status == 'Sucesso'" cls-alert="alert alert-success" :message="messages.data"
-                titulo="Sucesso"></Alert>
-            <Alert v-if="messages.status == 'Erro'" cls-alert="alert alert-success" :message="messages.data"
-                titulo="Erro"></Alert>
-        </template>
-        <template v-slot:conteudo>
-            <div class="row">
-                <div class="col">
-                    <label for="nameCliente" class="form-label"> Nome </label>
-                    <input class="form-control" :value="dadoCliente.name" disabled />
-                </div>
-                <div class="col">
-                    <label for="cpfCliente" class="form-label"> CPF </label>
-                    <input class="form-control" v-mask="'###.###.###-##'" :value="dadoCliente.cpf" disabled />
-                </div>
+                </template>
+                <template v-slot:footer>
+                    <button type="button" class="btn btn-primary btn-sm" @click="pesquisar">Pesquisar</button>
+                </template>
+            </Card>
+        </div>
+        <div class="col-md-8">
+            <Card titulo="Clientes" check="Ativo" :value-check="true" @check-func="checkFunck">
+                <template v-slot:conteudo>
+                    <Table :titulos="['id', 'name', 'cpf', 'telefone']" :dados="dadosClientes" :editar="true"
+                        @editObj="modalEdit" :deletar="deletarCheck" @delete="modalExcluir"
+                        :ativar="ativarClienteBoolean" @ativarCliente="reintegrarCliente"> </Table>
+                </template>
+                <template v-slot:footer>
+                    <div class="row">
+                        <div class="col text-start">
+                            <Pagination :dados-page="pageable" @change-page="changePage"></Pagination>
+                        </div>
+                        <div class="col text-end">
+                            <button type="button" class="btn btn-primary btn-sm"
+                                @click="modalAdicionar">Adicionar</button>
+                        </div>
+                    </div>
+                </template>
+            </Card>
+        </div>
+        <Modal titulo="Adicionar Cliente" :visivel="visivelModalAdicionar">
+            <template v-slot:alert>
+                <Alert v-if="messages.status == 'Sucesso'" cls-alert="alert alert-success" :message="messages.data"
+                    titulo="Sucesso"></Alert>
+                <Alert v-if="messages.status == 'Erro'" cls-alert="alert alert-success" :message="messages.data"
+                    titulo="Erro"></Alert>
+            </template>
+            <template v-slot:conteudo>
+                <Input for-label="emailCliente" id-att="clientEmail" id-att-ajuda="idClienteAjuda" titulo="Email"
+                    titulo-ajuda="Informe o Email">
+                <input type="email" class="form-control" v-model="dadosCliente.email">
+                </Input>
                 <div class="row">
                     <div class="col">
-                        <label for="emailCliente" class="form-label">Email</label>
-                        <input class="form-control" :value="dadoCliente.email" disabled />
+                        <Input for-label="nameCliente" id-att="idNameCliente" id-att-ajuda="idNameCliente" titulo="Nome"
+                            titulo-ajuda="Informe o nome do Cliente">
+                        <input type="text" name="nameCliente" id="nameCliente" class="form-control"
+                            v-model="dadosCliente.nome">
+                        </Input>
+                    </div>
+                    <div class="col">
+                        <Input for-label="telefoneCliente" id-att="telefoneid" id-att-ajuda="ajudatelefoneId"
+                            titulo="Telefone" titulo-ajuda="Informe o telefone do cliente">
+                        <input type="text" v-mask="'(##) #####-####'" class="form-control"
+                            v-model="dadosCliente.telefone" />
+                        </Input>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col">
-                        <label for="telefoneCliente" class="form-label">Telefone</label>
-                        <input class="form-control" :value="dadoCliente.telefone" v-mask="'(##) #####-####'" disabled />
+                        <Input for-label="cpfCliente" id-att="cpfCliente" id-att-ajuda="ajudaCpfCliente" titulo="CPF"
+                            titulo-ajuda="Informe o cpf do cliente">
+                        <input type="text" v-mask="'###.###.###-##'" class="form-control" id="cpfCliente"
+                            v-model="dadosCliente.cpf" />
+                        </Input>
+                    </div>
+                </div>
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+                <button type="button" class="btn btn-primary" @click="saveCliente">Save changes</button>
+            </template>
+        </Modal>
+        <!-- Modal para editar o cliente -->
+        <Modal titulo="Editar Cliente" :visivel="visivelModalEditar">
+            <template v-slot:alert>
+                <Alert v-if="messages.status == 'Sucesso'" cls-alert="alert alert-success" :message="messages.data"
+                    titulo="Sucesso"></Alert>
+                <Alert v-if="messages.status == 'Erro'" cls-alert="alert alert-success" :message="messages.data"
+                    titulo="Erro"></Alert>
+            </template>
+            <template v-slot:conteudo>
+                <Input for-label="emailClienteEdit" id-att="clientEmailEdit" id-att-ajuda="idClienteAjuda"
+                    titulo="Email" titulo-ajuda="Informe o Email">
+                <input type="email" class="form-control" id="emailIdCliente" :value="dadoCliente.email">
+                </Input>
+                <div class="row">
+                    <div class="col">
+                        <Input for-label="nameCliente" id-att="idNameClienteEdit" id-att-ajuda="idNameCliente"
+                            titulo="Nome" titulo-ajuda="Informe o nome do Cliente">
+                        <input type="text" name="nameCliente" id="nameClienteEdit" class="form-control"
+                            :value="dadoCliente.name">
+                        </Input>
                     </div>
                     <div class="col">
-                        <label for="estaPendente" class="form-label">Tem carro alugado</label>
-                        <input id="simPendente"
-                            v-if="dadosLocacao.filter(i => i.idCliente === dadoCliente.id && i.finalizada === false).length > 0"
-                            class="form-control" :value="'Sim'" disabled />
-                        <input id="simPendente" v-else class="form-control" :value="'Não'" disabled>
+                        <Input for-label="telefoneCliente" id-att="telefoneidEdit" id-att-ajuda="ajudatelefoneId"
+                            titulo="Telefone" titulo-ajuda="Informe o telefone do cliente">
+                        <input type="text" v-mask="'(##) #####-####'" class="form-control" :value="dadoCliente.telefone"
+                            id="telefoneClienteEdit" />
+                        </Input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <Input for-label="cpfCliente" id-att="cpfClienteEdit" id-att-ajuda="ajudaCpfCliente"
+                            titulo="CPF" titulo-ajuda="Informe o cpf do cliente">
+                        <input type="text" v-mask="'###.###.###-##'" class="form-control" id="cpfClienteEdit"
+                            :value="dadoCliente.cpf" />
+                        </Input>
+                    </div>
+                </div>
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+                <button type="button" class="btn btn-primary"
+                    @click="editCliente(dadoCliente.messageStatus, dadoCliente.id)">Save changes</button>
+            </template>
+        </Modal>
+        <!-- Modal para remover o cliente (deixar inativo)-->
+        <Modal titulo="Remover Cliente" :visivel="visivelModalRemover">
+            <template v-slot:alert>
+                <Alert v-if="messages.status == 'Sucesso'" cls-alert="alert alert-success" :message="messages.data"
+                    titulo="Sucesso"></Alert>
+                <Alert v-if="messages.status == 'Erro'" cls-alert="alert alert-success" :message="messages.data"
+                    titulo="Erro"></Alert>
+            </template>
+            <template v-slot:conteudo>
+                <div class="row">
+                    <div class="col">
+                        <label for="nameCliente" class="form-label"> Nome </label>
+                        <input class="form-control" :value="dadoCliente.name" disabled />
+                    </div>
+                    <div class="col">
+                        <label for="cpfCliente" class="form-label"> CPF </label>
+                        <input class="form-control" v-mask="'###.###.###-##'" :value="dadoCliente.cpf" disabled />
                     </div>
                     <div class="row">
                         <div class="col">
-                            <Input for-label="textStatus" id-att="textoStatus" id-att-ajuda="idAjudaStatus"
-                                :titulo="'Menssagem sobre o Cliente: ' + dadoCliente.name"
-                                titulo-ajuda="Informe o motivo desta ação">
-                            <textarea name="statusMessagem" id="messagemCliente" class="form-control"
-                                :value="dadoCliente.messageStatus"></textarea>
-                            </Input>
+                            <label for="emailCliente" class="form-label">Email</label>
+                            <input class="form-control" :value="dadoCliente.email" disabled />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="telefoneCliente" class="form-label">Telefone</label>
+                            <input class="form-control" :value="dadoCliente.telefone" v-mask="'(##) #####-####'"
+                                disabled />
+                        </div>
+                        <div class="col">
+                            <label for="estaPendente" class="form-label">Tem carro alugado</label>
+                            <input id="simPendente"
+                                v-if="dadosLocacao.filter(i => i.idCliente === dadoCliente.id && i.finalizada === false).length > 0"
+                                class="form-control" :value="'Sim'" disabled />
+                            <input id="simPendente" v-else class="form-control" :value="'Não'" disabled>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <Input for-label="textStatus" id-att="textoStatus" id-att-ajuda="idAjudaStatus"
+                                    :titulo="'Menssagem sobre o Cliente: ' + dadoCliente.name"
+                                    titulo-ajuda="Informe o motivo desta ação">
+                                <textarea name="statusMessagem" id="messagemCliente" class="form-control"
+                                    :value="dadoCliente.messageStatus"></textarea>
+                                </Input>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </template>
-        <template v-slot:rodape>
-            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
-            <button type="button" class="btn btn-primary" id="excluirBtn"
-                @click="statusClienteFunc(dadoCliente.id)">Save
-                changes</button>
-        </template>
-    </Modal>
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+                <button type="button" class="btn btn-primary" id="excluirBtn"
+                    @click="statusClienteFunc(dadoCliente.id)">Save
+                    changes</button>
+            </template>
+        </Modal>
+        <!-- Reintegrar cliente  -->
+        <Modal titulo="Reintegrar Cliente" :visivel="visivelReintegrar">
+            <template v-slot:alert>
+                <Alert v-if="messages.status == 'Sucesso'" cls-alert="alert alert-success" :message="messages.data"
+                    titulo="Sucesso"></Alert>
+                <Alert v-if="messages.status == 'Erro'" cls-alert="alert alert-success" :message="messages.data"
+                    titulo="Erro"></Alert>
+            </template>
+            <template v-slot:conteudo>
+                <div class="row">
+                    <div class="col">
+                        <label for="nameCliente" class="form-label"> Nome </label>
+                        <input class="form-control" :value="dadoCliente.name" disabled />
+                    </div>
+                    <div class="col">
+                        <label for="cpfCliente" class="form-label"> CPF </label>
+                        <input class="form-control" v-mask="'###.###.###-##'" :value="dadoCliente.cpf" disabled />
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="emailCliente" class="form-label">Email</label>
+                            <input class="form-control" :value="dadoCliente.email" disabled />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="telefoneCliente" class="form-label">Telefone</label>
+                            <input class="form-control" :value="dadoCliente.telefone" v-mask="'(##) #####-####'"
+                                disabled />
+                        </div>
+                        <div class="col">
+                            <label for="estaPendente" class="form-label">Tem carro alugado</label>
+                            <input id="simPendente"
+                                v-if="dadosLocacao.filter(i => i.idCliente === dadoCliente.id && i.finalizada === false).length > 0"
+                                class="form-control" :value="'Sim'" disabled />
+                            <input id="simPendente" v-else class="form-control" :value="'Não'" disabled>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <Input for-label="textStatus" id-att="textoStatus" id-att-ajuda="idAjudaStatus"
+                                    :titulo="'Menssagem sobre o Cliente: ' + dadoCliente.name"
+                                    titulo-ajuda="Informe o motivo desta ação">
+                                <textarea name="statusMessagem" id="messagemCliente" class="form-control"
+                                    :value="dadoCliente.messageStatus"></textarea>
+                                </Input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+                <button type="button" class="btn btn-primary" id="excluirBtn"
+                    @click="statusClienteFunc(dadoCliente.id)">Save
+                    changes</button>
+            </template>
+        </Modal>
+    </div>
 </template>
+
+<style>
+.pesquisa {
+    padding-bottom: 50px;
+}
+</style>

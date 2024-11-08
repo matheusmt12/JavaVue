@@ -12,7 +12,6 @@ import com.example.thymeleaf.dto.ClienteDTO;
 import com.example.thymeleaf.dto.MudarStatusClienteDTO;
 import com.example.thymeleaf.entity.Cliente;
 
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -70,9 +69,10 @@ public class ClienteController {
 
     @GetMapping("/index")
     public ResponseEntity<?> getIndex(@RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size, @RequestParam(defaultValue = "false") boolean active) {
+            @RequestParam(defaultValue = "5") int size, @RequestParam(defaultValue = "false") boolean active,
+            @RequestParam(defaultValue = " ") String nome, @RequestParam(defaultValue = " ") String cpf) {
         try {
-            return new ResponseEntity<>(service.getAllPage(page, size, active), HttpStatus.OK);
+            return new ResponseEntity<>(service.getAllPage(page, size, active,nome,cpf), HttpStatus.OK);
         } catch (Exception e) {
             // TODO: handle exception
             return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(500));
@@ -80,9 +80,9 @@ public class ClienteController {
     }
 
     @PutMapping("/mudarstatus/{id}")
-    public ResponseEntity<?> removeClinete( @PathVariable long id,@RequestBody MudarStatusClienteDTO cliente){
+    public ResponseEntity<?> removeClinete(@PathVariable long id, @RequestBody MudarStatusClienteDTO cliente) {
         try {
-            return new ResponseEntity<>(service.mudarStatus(id, cliente),HttpStatus.valueOf(200));
+            return new ResponseEntity<>(service.mudarStatus(id, cliente), HttpStatus.valueOf(200));
         } catch (Exception e) {
             // TODO: handle exception
             return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(500));

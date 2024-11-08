@@ -11,5 +11,7 @@ import com.example.thymeleaf.entity.Cliente;
 public interface IRepositoryCliente extends JpaRepository<Cliente,Long> {
 
     Page<Cliente> findByActive(Pageable pageable,boolean active);
+    Page<Cliente> findByActiveAndNameContaining(Pageable pageable , boolean active, String name);
+    Page<Cliente> findByActiveAndCpfContaining(Pageable pageable, boolean active, String cpf);
 
 }
